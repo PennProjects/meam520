@@ -27,7 +27,7 @@ classdef ArmController
         lidar
         
         transforms = {};
-        jointPositionts = zeros(6,3);
+        jointPositions = zeros(6,3);
 
         joint_limits = [ -1.4, -1.2, -1.8, -1.9, -2.0, -15;
                           1.4,  1.4,  1.7,  1.7,  1.5,  30]; 
@@ -149,7 +149,7 @@ classdef ArmController
             diff =  command-obj.cur_state;
             curr = obj.cur_state;                
             dist = max(abs(diff));        
-            N = round(dist*30);
+            N = max(round(dist*30),3);
             if N<1
                  obj = update_move(obj, command);
             else                
@@ -267,12 +267,16 @@ classdef ArmController
                 trans = receive(obj.pose_sub{i},10);
                 translation = 1000*[trans.Transform.Translation.X,trans.Transform.Translation.Y,trans.Transform.Translation.Z];
                 
-                obj.jointPositionts(i,1:3) = translation;
+                obj.jointPositions(i,1:3) = translation;
                 
-                quat = quaternion(trans.Transform.Rotation.X,...
+                quat = quaternion(trans.Transform.Rotation.W,...
+                                           trans.Transform.Rotation.X,...
                                            trans.Transform.Rotation.Y,...
-                                           trans.Transform.Rotation.Z,...
-                                           trans.Transform.Rotation.W);
+                                           trans.Transform.Rotation.Z);
+%                 quat = quaternion(trans.Transform.Rotation.X,...
+%                                            trans.Transform.Rotation.Y,...
+%                                            trans.Transform.Rotation.Z,...
+%                                            trans.Transform.Rotation.W);
                                        
                                        
                 Ti = eye(4,4);
@@ -291,7 +295,7 @@ classdef ArmController
         
             T0e_sum = obj.transforms{6};
             
-            jointPositions_sim = obj.jointPositionts;
+            jointPositions_sim = obj.jointPositions;
             
         
         end
