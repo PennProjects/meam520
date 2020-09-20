@@ -5,7 +5,7 @@
 % addpath('../Core') % references ROS interface and arm controller files you'll need for every lab
 % 
 % %connect to ROS : 
-% setenv('ROS MASTER URI','http://192.168.0.21:11311')
+% setenv('ROS_MASTER_URI','http://192.168.0.21:11311')
 % setenv('ROS_IP','192.168.0.11')
 
 % start ROS 
