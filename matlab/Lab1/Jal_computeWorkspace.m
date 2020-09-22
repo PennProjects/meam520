@@ -31,7 +31,13 @@ x = gripper_positions(:,1)
 y = gripper_positions(:,2)
 z = gripper_positions(:,3)
 
-plot3(x,y,z, '.')
+b_x = boundary(y,z)
+b_y = boundary(x,z)
+b_z = boundary(x,y)
+
+
+plot3(x,y,z, 'o', 'Color','#FF0000')
+
 grid on
 xlabel('Xo')
 ylabel('Yo')
@@ -41,9 +47,15 @@ ylim([1.1*min(y),1.1*max(y)])
 zlim([1.1*min(z),1.1*max(z)])
 
 hold on
-plot3(x, 1.1*max(y)*ones(size(y)),z, '-');
-plot3(1.1*max(x)*ones(size(x)),y,z, '-');
-plot3(x, y, 1.1*min(z)*ones(size(z)), '-');
+plot3(x, 1.1*max(y)*ones(size(y)),z, '-', 'Color', '#add8e6')
+plot3(x(b_y), 1.1*max(y)*ones(size(x(b_y))), z(b_y), '-', 'Color', '#FF0000')
+plot3(1.1*max(x)*ones(size(x)),y,z, '-', 'Color', '#add8e6')
+plot3(1.1*max(x)*ones(size(y(b_x))), y(b_x), z(b_x), '-', 'Color', '#FF0000')
+plot3(x, y, 1.1*min(z)*ones(size(z)), '-', 'Color', '#add8e6')
+plot3(x(b_z), y(b_z),1.1*min(z)*ones(size(x(b_z))) , '-', 'Color', '#FF0000')
+
+
+ 
 
 
 
