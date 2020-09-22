@@ -23,7 +23,7 @@ L1 = 76.2;    % distance between joint 0 and joint 1
 L2 = 146.05;  % distance between joint 1 and joint 2
 L3 = 187.325; % distance between joint 2 and joint 3
 L4 = 34;      % distance between joint 3 and joint 4
-L5 = 68;      % distance between joint 4 and center of gripper
+L5 = 34;      % distance between joint 4 and center of gripper
 
 %% Your code here
     function [matrix] = DHParam(a, alpha, d, theta)
@@ -40,29 +40,26 @@ theta_3 = q(3)+pi/2;
 theta_4 = q(4)+pi/2;
 theta_5 = q(5)+pi;
 
-T10 = DHParam(0, pi/2, L1, theta_1);
-T21 = DHParam(L2, 0, 0, theta_2);
-T32 = DHParam(L3, 0, 0, theta_3);
-T43 = DHParam(0, pi/2, 0, theta_4);
-Te4 = DHParam(0, 0, L4+L5, theta_5);
+T01 = DHParam(0, pi/2, L1, theta_1);
+T12 = DHParam(L2, 0, 0, theta_2);
+T23 = DHParam(L3, 0, 0, theta_3);
+T34 = DHParam(0, pi/2, 0, theta_4);
+T4e = DHParam(0, 0, L4+L5, theta_5);
 
-% origins of the 6
-%O0_init = [0 0 0 1];
-%O1_init = [0 0 L1 1];
-%O2_init = [0 0 L1+L2 1];
-%O3_init = [L3 0 L1+L2 1];
-%O4_init = [L3 0 L1+L2 1];
-%Oe_init = [L3+L4+L5 0 L1+L2 1];
+% pos of origins
+O1 = T01;
+J1 = O1; %Joint 1 and Origin 1 are in the same place
+O2 = T01 * T12;
+J2 = O2;
+O3 = T01 * T12 * T23;
+J3 = O3;
+O4 = T01 * T12 * T23 * T34;
+J4 = O4 * [0; 0 ;L4; 1]; % Since Origin 4 resides in the previous frame, the position of Joint 4 is different from where Origin 4 is. 
+Oe = T01 * T12 * T23 * T34 * T4e;
+Je = Oe;
 
-% joint pos of 6
-O1 = T10;
-O2 = T10 * T21 ;
-O3 = T10 * T21 * T32;
-O4 = T10 * T21 * T32 * T43;
-Oe = T10 * T21 * T32 * T43 * Te4;
-
-T0e = T10 * T21 * T32 * T43 * Te4;
-jointPositions = [ 0 0 0; O1([13 14 15]); O2([13 14 15]); O3([13 14 15]); O4([13 14 15]); Oe([13 14 15])];
+T0e = T01 * T12 * T23 * T34 * T4e;
+jointPositions = [ 0 0 0; J1([13 14 15]); J2([13 14 15]); J3([13 14 15]); transpose(J4([1 2 3])); Je([13 14 15])];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
