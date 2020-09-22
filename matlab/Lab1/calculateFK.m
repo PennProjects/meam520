@@ -55,7 +55,7 @@ function [jointPositions,T0e] = calculateFK(q)
     end
 
     
-%   Calculating joint angle of frames baseed on DH convention.
+%   Calculating joint angle of frames based on DH convention.
     theta_1 = q(1)+pi;
     theta_2 = q(2)+pi/2;
     theta_3 = q(3)+pi/2;
