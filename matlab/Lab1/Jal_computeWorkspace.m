@@ -6,6 +6,10 @@ addpath('../Core') % references ROS interface and arm controller files you'll ne
 
 gripper_positions = [];
 
+% To compute the workspace
+% We do this by computing all the poistions the gripper can reach.
+% This is done by looping through the various positions of all the joints. 
+% The step size for the angles can be varied to get better resolution.
 for th_1  = -1.4 :0.3 :1.4
     for th_2 = -1.2 :0.5 : 1.4
         for th_3 = -1.8 : 0.5: 1.7
@@ -23,13 +27,14 @@ for th_1  = -1.4 :0.3 :1.4
 end
 
 
-% disp(gripper)
-% scatter3(gripper_positions(:,1), gripper_positions(:,2), gripper_positions(:,3))
-
 % plot the workspace
 x = gripper_positions(:,1)
 y = gripper_positions(:,2)
 z = gripper_positions(:,3)
+
+x_axs = [1.1*min(x),1.1*max(x)]
+y_axs = [1.1*min(y),1.1*max(y)]
+z_axs = [1.1*min(z),1.1*max(z)]
 
 b_x = boundary(y,z)
 b_y = boundary(x,z)
@@ -60,7 +65,13 @@ plot3(x, y, 1.1*min(z)*ones(size(z)), '-', 'Color', '#add8e6')
 plot3(x(b_z), y(b_z),1.1*min(z)*ones(size(x(b_z))) , '-', 'Color', '#FF0000')
 
 % plot robot at zero confoguration
-plot3(jointPositions(:,1),jointPositions(:,2), jointPositions(:,3),'black', 'LineWidth', 5)
+plot3(jointPositions(:,1),jointPositions(:,2), jointPositions(:,3),'Color','#000000', 'LineWidth', 5)
+
+% plot axes
+plot3(x_axs, zeros(size(x_axs)), zeros(size(x_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
+plot3(zeros(size(y_axs)), y_axs, zeros(size(y_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
+plot3(zeros(size(z_axs)), zeros(size(z_axs)), z_axs, 'Color','#A9A9A9', 'LineWidth', 3)
+
 
 trisurf(b_3d,x,y,z, 'Facecolor', 'r', 'FaceAlpha', '0.1')
 
