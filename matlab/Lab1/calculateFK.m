@@ -27,7 +27,7 @@ function [jointPositions,T0e] = calculateFK(q)
 
 %% Your code here
     
-%function to calculate the tranformation matrix for given DH parameters.
+%function to calculate the tranformation matrix for given set of DH parameters.
     function [hom_trans_matrix] = DHParam(a, alpha, d, theta)
      
 %    INPUT:
@@ -47,7 +47,7 @@ function [jointPositions,T0e] = calculateFK(q)
 %                            frame_i to frame_i-1.
 
 
-%    Outputs DHParams when given four parameters
+%    Calculates DHParams when given four parameters
         hom_trans_matrix = [cos(theta), -sin(theta)*cos(alpha), sin(theta)*sin(alpha), a*cos(theta); 
                             sin(theta), cos(theta)*cos(alpha), -cos(theta)*sin(alpha), a*sin(theta);
                             0, sin(alpha), cos(alpha), d;
@@ -70,22 +70,24 @@ function [jointPositions,T0e] = calculateFK(q)
     T4e = DHParam(0, 0, L4+L5, theta_5);
 
 %   Calculation of pposition of Origins Oi of frame_i in global(base) coordinates.
+    O0 = [0,0,0];
     O1 = T01;
     O2 = T01 * T12;
     O3 = T01 * T12 * T23;
     O4 = T01 * T12 * T23 * T34;
     Oe = T01 * T12 * T23 * T34 * T4e;
     
-%   Claculation of joint positions of each joint Ji
-    J1 = O1; %Joint 1 and Origin 1 are in the same place
-    J2 = O2;
-    J3 = O3;
-    J4 = O4 * [0; 0 ;L4; 1]; % Since Origin 4 resides in the previous frame, the position of Joint 4 is different from where Origin 4 is. 
+%   Calculation of joint positions of each joint Ji
+    J1 = O0;
+    J2 = O1; 
+    J3 = O2;
+    J4 = O3;
+    J5 = O4 * [0; 0 ;L4; 1]; % Joint 5 is off the origin O4 by L4 along the z-axis 
     Je = Oe;
 
 % Output of function, Transformation matrix from e to 0 and 6 joint positions
     T0e = T01 * T12 * T23 * T34 * T4e;
-    jointPositions = [ 0 0 0; J1([13 14 15]); J2([13 14 15]); J3([13 14 15]); transpose(J4([1 2 3])); Je([13 14 15])];
+    jointPositions = [ J1; J2([13 14 15]); J3([13 14 15]); J4([13 14 15]); transpose(J5([1 2 3])); Je([13 14 15])];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
