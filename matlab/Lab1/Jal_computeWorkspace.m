@@ -49,7 +49,8 @@ q = [0,0,0,0,0,0];
 [jointPositions, T0e] = calculateFK(q);
 
 % 3D Plot of all points where the gripper can reach
-plot3(x,y,z, 'o', 'Color','#FF0000')
+plot3(x,y,z, 'o', 'Color','#E26400')
+set(gca,'Color','k')
 
 % Plot view configuration
 grid on
@@ -62,25 +63,29 @@ zlim([1.1*min(z),1.1*max(z)])
 
 % Plotting the projections on the XY, YZ and ZX Axes
 hold on
-plot3(x, 1.1*max(y)*ones(size(y)),z, ':', 'Color', '#add8e6','LineWidth', 1.5 )
-plot3(1.1*max(x)*ones(size(x)),y,z, ':', 'Color', '#add8e6','LineWidth', 1.5 )
-plot3(x, y, 1.1*min(z)*ones(size(z)), ':', 'Color', '#add8e6','LineWidth', 1.5 )
+% plot3(x, 1.1*max(y)*ones(size(y)),z, ':', 'Color', '#add8e6','LineWidth', 1.5 )
+% plot3(1.1*max(x)*ones(size(x)),y,z, ':', 'Color', '#add8e6','LineWidth', 1.5 )
+% plot3(x, y, 1.1*min(z)*ones(size(z)), ':', 'Color', '#add8e6','LineWidth', 1.5 )
 
 % Plotting boundary of the porjection
-plot3(x(b_y), 1.1*max(y)*ones(size(x(b_y))), z(b_y), '-', 'Color', '#FF0000')
-plot3(1.1*max(x)*ones(size(y(b_x))), y(b_x), z(b_x), '-', 'Color', '#FF0000')
-plot3(x(b_z), y(b_z),1.1*min(z)*ones(size(x(b_z))) , '-', 'Color', '#FF0000')
+% plot3(x(b_y), 1.1*max(y)*ones(size(x(b_y))), z(b_y), '-', 'Color', '#FF0000')
+% plot3(1.1*max(x)*ones(size(y(b_x))), y(b_x), z(b_x), '-', 'Color', '#FF0000')
+% plot3(x(b_z), y(b_z),1.1*min(z)*ones(size(x(b_z))) , '-', 'Color', '#FF0000')
 
 % Plotting surfacre /3D boundary
-trisurf(b_3d,x,y,z, 'Facecolor', 'r', 'FaceAlpha', '0.1')
+trisurf(b_3d,x,y,z, 'Facecolor', '#E26400', 'FaceAlpha', '0.3')
 
 % plot dummy robot at zero confoguration
-plot3(jointPositions(:,1),jointPositions(:,2), jointPositions(:,3),'d-','Color','#000000', 'LineWidth', 5)
+% plot3(jointPositions(:,1),jointPositions(:,2), jointPositions(:,3),'d-','Color','#000000', 'LineWidth', 5)
 
 % plot Axes
-plot3(x_axs, zeros(size(x_axs)), zeros(size(x_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
-plot3(zeros(size(y_axs)), y_axs, zeros(size(y_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
-plot3(zeros(size(z_axs)), zeros(size(z_axs)), z_axs, 'Color','#A9A9A9', 'LineWidth', 3)
+% plot3(x_axs, zeros(size(x_axs)), zeros(size(x_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
+% plot3(zeros(size(y_axs)), y_axs, zeros(size(y_axs)), 'Color','#A9A9A9', 'LineWidth', 3)
+% plot3(zeros(size(z_axs)), zeros(size(z_axs)), z_axs, 'Color','#A9A9A9', 'LineWidth', 3)
+
+
+% JARVIS Color : #E26400
+% set(gca,'Color','k')
 
 
 
