@@ -69,15 +69,13 @@ function [jointPositions,T0e] = calculateFK(q)
     T34 = DHParam(0, pi/2, 0, theta_4);
     T4e = DHParam(0, 0, L4+L5, theta_5);
 
-%   Calculation of position of Origins of frame_i in global(base) coordinates.
-%   Here the Origin is actully the [13 14 15] element of Oi, we have
-%   denoted the whole 4X4 matrix as Oi for simplicity
-    O0 = [0,0,0];
-    O1 = T01;
-    O2 = T01 * T12;
-    O3 = T01 * T12 * T23;
-    O4 = T01 * T12 * T23 * T34;
-    Oe = T01 * T12 * T23 * T34 * T4e;
+%   Calculation of pposition of Origins Oi of frame_i in global(base) coordinates.
+    O0 = [0,0,0]
+    O1 = T01
+    O2 = T01 * T12
+    O3 = T01 * T12 * T23
+    O4 = T01 * T12 * T23 * T34
+    Oe = T01 * T12 * T23 * T34 * T4e
     
 %   Calculation of joint positions of each joint Ji
     J1 = O0;
