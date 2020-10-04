@@ -26,10 +26,11 @@ w = H03([13 14 15])
 
 a1 = [76.2, 146.05, 187.325];
 % q1 = [0,0,0,0,0,0];
-q2 = [-1, 0, 0.2, 0,1.5,0];
+% q2 = [-0.986, 0, 0.123, 0,1.5,0];
 % q3 = [pi/2, 0, pi/4,0,pi/2,0];
+q4 = [0, -1.2, -1.5, 0,0,0];
 
-q = q2;
+q = q4;
 w_1= calc_wrist_pos(a1,q)
 
 q_test = angle_ik(a1, w_1)
@@ -46,9 +47,14 @@ end
 
 
 function [q_value] = angle_ik(a, pos)
+
+    theta3 = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+    alpha = atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
+    beta = asin((a(3)*cos(theta3))/(sqrt(pos(1)^2 + pos(2)^2+(a(1)-pos(3))^2)))
+    theta2 = pi-alpha-beta
     
     q_value = [atan2(pos(2),pos(1)),
-               0,
-               asin((a(2)^2+ a(3)^2 -(((pos(1)^2 + pos(2)^2)/pos(2)^2)*(pos(2)^2+(a(1)-pos(3))^2)))/(2*a(2)*a(3)))];
+                theta2
+               theta3];
 end
         
