@@ -3,22 +3,22 @@ syms c1 s1 d1 c2 s2 a2 c3 s3 a3
 H01 = [ c1 0 -s1 0;
         s1 0 c1 0;
         0 -1 0 d1;
-        0 0 0 1]
+        0 0 0 1];
     
 H12 = [s2 c2 0 a2*s2;
       -c2 s2 0 -a2*c2;
       0 0 1 0;
-      0 0 0 1]
+      0 0 0 1];
   
   
 H23 = [-s3 -c3 0 -a3*s3;
        c3 -s3 0 a3*c3;
        0 0 1 0;
-       0 0 0 1]
+       0 0 0 1];
    
-H03 = H01*H12*H23
+H03 = H01*H12*H23;
 
-w = H03([13 14 15])
+w = H03([13 14 15]);
 
 
 
@@ -28,7 +28,7 @@ a1 = [76.2, 146.05, 187.325];
 % q1 = [0,0,0,0,0,0];
 % q2 = [-0.986, 0, 0.123, 0,1.5,0];
 % q3 = [pi/2, 0, pi/4,0,pi/2,0];
-q4 = [0, -1.2, -1.5, 0,0,0];
+q4 = [0, 1.5, 1.2, 0,0,0];
 
 q = q4;
 w_1= calc_wrist_pos(a1,q)
@@ -49,9 +49,17 @@ end
 function [q_value] = angle_ik(a, pos)
 
     theta3 = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
-    alpha = atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
-    beta = asin((a(3)*cos(theta3))/(sqrt(pos(1)^2 + pos(2)^2+(a(1)-pos(3))^2)))
-    theta2 = pi-alpha-beta
+    if pos(1) < 0 || pos(2) <0 
+        alpha = -1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
+    else
+        alpha = +1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
+    end
+    beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
+%     beta = pi/2;
+    a_deg = alpha*180/pi
+    b_deg = beta*180/pi
+    theta2 = pi-alpha-beta;
+
     
     q_value = [atan2(pos(2),pos(1)),
                 theta2
