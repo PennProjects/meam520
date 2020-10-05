@@ -16,8 +16,8 @@ H23 = [-s3 -c3 0 -a3*s3;
        0 0 1 0;
        0 0 0 1];
    
-H34 = [s4 0 -c4 0;
-       -c4 0 -s4 0;
+H34 = [s4 0 c4 0;
+       -c4 0 s4 0;
         0 -1 0 0 ;
         0 0 0 1];
 H4e = [c5 -s5 s5 0;
@@ -28,7 +28,11 @@ H4e = [c5 -s5 s5 0;
 H03 = H01*H12*H23;
 H3e = H34*H4e
 
-w = H03([13 14 15]);
+% H0e = H03*H3e
+
+% H3e_1 = transpose(H03)*H0e
+% w = H03([13 14 15]);
+a = H03(1:3,5:7,9:11)
 
 
 
@@ -39,9 +43,10 @@ a1 = [76.2, 146.05, 187.325];
 % q2 = [-0.986, 0, 0.123, 0,1.5,0];
 % q3 = [pi/2, 0, pi/4,0,pi/2,0];
 % q4 = [0, 1.5, 1.2, 0,0,0];
-q5 = [0, 0.3456, -0.5, 0,0,0];
+% q5 = [0, 0.3456, -1.8, 0,0,0];
+% q5_m = [0, 0.0879, -1.3416, 0, 0, 0];
 
-q = q5;
+q = q5_m;
 w_1= calc_wrist_pos(a1,q)
 
 q_test = angle_ik(a1, w_1)
@@ -62,6 +67,8 @@ function [q_value] = angle_ik(a, pos)
     theta1 = atan2(pos(2),pos(1));
     
     theta3 = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+%     w = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+%     theta3 = atan2(w,sqrt(1-w^2))
     
     theta3_cy = -pi/2 + acos((-a(2)^2 - a(3)^2 +(pos(1)^2 + pos(2)^2)+((a(1)-pos(3))^2))/(2*a(2)*a(3)))
     
@@ -73,7 +80,7 @@ function [q_value] = angle_ik(a, pos)
     beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
 %     beta = pi/2;
 %     alpha_2 = +1* atan2(-1*(a(1)-pos(3)), (sqrt(pos(1)^2 + pos(2)^2)))*180/pi
-%     beta_2 = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)))*180/pi
+    beta_2 = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)))*180/pi
     a_deg = alpha*180/pi
     b_deg = beta*180/pi
     theta2 = pi-alpha-beta;
