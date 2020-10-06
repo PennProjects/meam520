@@ -25,8 +25,8 @@ H4e = [c5 -s5 0 0;
        0 0 1 d4+d5;
        0 0 0 1];
    
-H03 = H01*H12*H23
-H3e = H34*H4e
+H03 = H01*H12*H23;
+H3e = H34*H4e;
 
 % H0e = H03*H3e
 
@@ -43,14 +43,22 @@ a1 = [76.2, 146.05, 187.325];
 % q2 = [-0.986, 0, 0.123, 0,1.5,0];
 % q3 = [pi/2, 0, pi/4,0,pi/2,0];
 % q4 = [0, 1.5, 1.2, 0,0,0];
-% q5 = [0, 0.3456, -1.8, 0,0,0];
+q5 = [0, 0.3456, -1.8, 0,0,0];
 q5_m = [0, 0.0879, -1.3416, 0, 0, 0];
+%rotating only theta1
+q_test_con = [];
+bl = [];
+for th1 = -1.4 : 0.2 :1.4
+    q1 = [th1,0,0,0,0,0];
+    
 
-q = q5_m;
-w_1= calc_wrist_pos(a1,q)
+    q = q1;
+    w_1= calc_wrist_pos(a1,q);
 
-q_test = angle_ik(a1, w_1)
-q
+    q_test = angle_ik(a1, w_1);
+    q;
+    q_test_con = [q_test_con;q,bl,q_test];
+end   
 
 
 function [w_value] = calc_wrist_pos(a, q)
@@ -66,11 +74,19 @@ function [q_value] = angle_ik(a, pos)
 
     theta1 = atan2(pos(2),pos(1));
     
-    theta3 = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
-%     w = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
-%     theta3 = atan2(w,sqrt(1-w^2))
+    omega = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
     
-    theta3_cy = -pi/2 + acos((-a(2)^2 - a(3)^2 +(pos(1)^2 + pos(2)^2)+((a(1)-pos(3))^2))/(2*a(2)*a(3)))
+%     theta3 = omega;
+%     theta3 = -omega-pi;
+    
+    
+    
+    w = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+    sqrt(1-w^2);
+    theta3 = atan2(w,sqrt(1-w^2)); %up elbow
+%     theta3 = atan2(w,-1*sqrt(1-w^2)) ; % elbow down
+    
+    theta3_cy = -pi/2 + acos((-a(2)^2 - a(3)^2 +(pos(1)^2 + pos(2)^2)+((a(1)-pos(3))^2))/(2*a(2)*a(3)));
     
     if pos(1) < 0 || pos(2) <0 
         alpha = -1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
@@ -80,14 +96,13 @@ function [q_value] = angle_ik(a, pos)
     beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
 %     beta = pi/2;
 %     alpha_2 = +1* atan2(-1*(a(1)-pos(3)), (sqrt(pos(1)^2 + pos(2)^2)))*180/pi
-    beta_2 = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)))*180/pi
-    a_deg = alpha*180/pi
-    b_deg = beta*180/pi
+%     beta_2 = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)))*180/pi
+%     a_deg = alpha*180/pi
+%     b_deg = beta*180/pi
     theta2 = pi-alpha-beta;
+%     theta2 = pi+alpha+beta;
 
     
-    q_value = [theta1,
-                theta2
-               theta3];
+    q_value = [theta1 theta2 theta3];
 end
         
