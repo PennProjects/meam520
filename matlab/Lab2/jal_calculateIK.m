@@ -25,14 +25,100 @@ d1 = 76.2;                      % Distance between joint 1 and joint 2
 a2 = 146.05;                    % Distance between joint 2 and joint 3
 a3 = 187.325;                   % Distance between joint 3 and joint 4
 d4 = 34;                        % Distance between joint 4 and joint 5
-d5 = 68;                        % Distance between joint 4 and end effector
+d5 = 34;                        % Distance between joint 4 and end effector
 
 % Joint limits
 lowerLim = [-1.4, -1.2, -1.8, -1.9, -2.0, -15]; % Lower joint limits in radians (grip in mm (negative closes more firmly))
 upperLim = [ 1.4,  1.4,  1.7,  1.7,  1.5,  30]; % Upper joint limits in radians (grip in mm)
 
 %% Your code here
+% Decomposing T0e
+r11 = T0e(1,1);
+r12 = T0e(1,2);
+r13 = T0e(1,3);
+r21 = T0e(2,1);
+r22 = T0e(2,2);
+r23 = T0e(2,3);
+r31 = T0e(3,1);
+r32 = T0e(3,2);
+r33 = T0e(3,3);
+x = T0e(1,4);
+y = T0e(2,4);
+z = T0e(3,4);
 
+% wrist center positions
+x_c = x - (d4+d5) * r13; 
+y_c = y - (d4+d5) * r23;
+z_c = z - (d4+d5) * r33;
+o_c = [x_c; y_c; z_c]; 
+
+% if not feasible
+% not reachable workspace 
+%  triangle inequality? 
+
+% isPos=false
+% q = [0 0 0 0 0]
+% return 
+% find pos of the center 
+% from wrist center - check if any of the angles are within the limits 
+
+% define qs
+
+q1 = atan2(y_c,x_c);
+
+c1 = cos(q1);
+s1 = sin(q1);
+
+gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
+q3_a(1) = gamma-pi/2 ;
+q3_a(2) = 3*pi/2-gamma;
+c3_a = cos(q3_a); 
+s3_a = sin(q3_a);
+
+alpha = atan2(z_c-d1, sqrt(x_c^2+y_c^2));
+beta = atan2(a3*c3_a, a2+a3*s3_a);
+q2_a(1) = pi/2 - alpha - beta(1);
+q2_a(2) = pi/2 - alpha - beta(2);
+q2_a(3) = 3*pi/2-alpha+beta(1);
+q2_a(4) = 3*pi/2-alpha+beta(2);
+% q2_a(3) = 3*pi/2-alpha-beta(1);
+% q2_a(4) = 3*pi/2-alpha-beta(2);
+
+c2_a = cos(q2_a);
+s2_a = sin(q2_a);
+
+
+
+q3 = q3_a(1);
+c3 = cos(q3); 
+s3 = sin(q3);
+q2 = q2_a(1);
+c2 = cos(q2);
+s2 = sin(q2);
+
+% R3e = (R03).T * R0e 
+r3e_cos4 = r13*(c1*c2*c3 - c1*s2*s3) + r23*(c2*c3*s1 - s1*s2*s3) - r33*(c2*s3 + c3*s2);
+r3e_sin4 = -r13*(c1*c2*s3 + c1*c3*s2) - r23*(c2*s1*s3 + c3*s1*s2) - r33*(c2*c3 - s2*s3); 
+
+q4 = atan2(r3e_sin4, r3e_cos4);
+q5 = atan2(r11*s1-r21*c1, r12*s1-r22*c1); 
+
+% if q1 > upperLim(1) || q1 <lowerLim(1) || q2 > upperLim(2) || q2 < lowerLim(2)
+%     isPos = 0;
+%     q = [0 0 0 0 0];
+%     return 
+% end 
+
+        
+        
+q  = [q1, q2_a(1), q3_a(1), q4, q5;
+      q1, q2_a(2), q3_a(1), q4, q5;
+      q1, q2_a(3), q3_a(2), q4, q5;
+      q1, q2_a(4), q3_a(2), q4, q5;
+]
+
+
+isPos = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end

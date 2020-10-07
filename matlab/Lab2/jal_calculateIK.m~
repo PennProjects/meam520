@@ -64,23 +64,35 @@ o_c = [x_c; y_c; z_c];
 
 % define qs
 
-q1 = atan2(yc,xc);
+q1 = atan2(y_c,x_c);
 
 c1 = cos(q1);
 s1 = sin(q1);
 
-gamma = (a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3);
-q3 = ;
+gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
+q3_a(1) = gamma-pi/2 ;
+q3_a(2) = 3*pi/2-gamma;
+c3_a = cos(q3_a); 
+s3_a = sin(q3_a);
+
+alpha = atan2(z_c-d1, sqrt(x_c^2+y_c^2));
+beta = atan2(a3*c3_a, a2+a3*s3_a);
+q2_a(1) = pi/2 - alpha - beta(1);
+q2_a(2) = pi/2 - alpha - beta(2);
+q2_a(3) = 3*pi/2-alpha+beta(1);
+q2_a(4) = 3*pi/2-alpha+beta(2);
+
+c2 = cos(q2_a);
+s2 = sin(q2_a);
+
+
+
+q3 = q3(1);
 c3 = cos(q3); 
 s3 = sin(q3);
-
-alpha = atan2(z-d1, sqrt(x^2+y^2));
-beta = atan2(a3*c3, a2+a3*s3);
-q2 = ;
-
+q2 = q2(1);
 c2 = cos(q2);
 s2 = sin(q2);
-
 
 % R3e = (R03).T * R0e 
 r3e_cos4 = r13*(c1*c2*c3 - c1*s2*s3) + r23*(c2*c3*s1 - s1*s2*s3) - r33*(c2*s3 + c3*s2);
@@ -89,12 +101,21 @@ r3e_sin4 = -r13*(c1*c2*s3 + c1*c3*s2) - r23*(c2*s1*s3 + c3*s1*s2) - r33*(c2*c3 -
 q4 = atan2(r3e_sin4, r3e_cos4);
 q5 = atan2(r11*s1-r21*c1, r12*s1-r22*c1); 
 
-if q1 > upperlimb(1) || q1 <lowerlimb(1) || q2 > upperlimb(2) || q2 < lowerlimb(2)
-    isPos = False;
-    q = [0 0 0 0 0];
-    return 
+% if q1 > upperLim(1) || q1 <lowerLim(1) || q2 > upperLim(2) || q2 < lowerLim(2)
+%     isPos = 0;
+%     q = [0 0 0 0 0];
+%     return 
+% end 
 
-q = [q1 q2 q3 q4 q5];
+        
+        
+q  = [q1, q2(1), q3(1), 0, 0;
+      q1, q2(2), q3(1), 0, 0;
+      q1, q2(3), q3(2), 0, 0;
+      q1, q2(4), q3(1), 0, 0;
+]
+
+
 isPos = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
