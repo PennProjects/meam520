@@ -46,18 +46,56 @@ x = T0e(1,4);
 y = T0e(2,4);
 z = T0e(3,4);
 
-% define qs
-q1 = atan2(yc,xc);
-q2 = ;
-q3 = ;
-
 % wrist center positions
 x_c = x - d5 * r11; 
 y_c = y - d5 * r21;
 z_c = z - d5 * r31;
+o_c = [x_c; y_c; z_c]; 
+
+% if not feasible
+% not reachable workspace 
+%  triangle inequality? 
+
+% isPos=false
+% q = [0 0 0 0 0]
+% return 
+% find pos of the center 
+% from wrist center - check if any of the angles are within the limits 
+
+% define qs
+
+q1 = atan2(yc,xc);
+
+c1 = cos(q1);
+s1 = sin(q1);
+
+gamma = (a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3);
+q3 = ;
+c3 = cos(q3); 
+s3 = sin(q3);
+
+alpha = atan2(z-d1, sqrt(x^2+y^2));
+beta = atan2(a3*c3, a2+a3*s3);
+q2 = ;
+
+c2 = cos(q2);
+s2 = sin(q2);
 
 
+% R3e = (R03).T * R0e 
+r3e_cos4 = r13*(c1*c2*c3 - c1*s2*s3) + r23*(c2*c3*s1 - s1*s2*s3) - r33*(c2*s3 + c3*s2);
+r3e_sin4 = -r13*(c1*c2*s3 + c1*c3*s2) - r23*(c2*s1*s3 + c3*s1*s2) - r33*(c2*c3 - s2*s3); 
 
+q4 = atan(r3e_sin4, r3e_cos4);
+q5 = atan(r11*s1-r21*c1, r12*s1-r22*c1); 
+
+if q1 > upperlimb(1) || q1 <lowerlimb(1) || q2 > upperlimb(2) || q2 < lowerlimb(2)
+    isPos = False;
+    q = [0 0 0 0 0];
+    return 
+
+q = [q1 q2 q3 q4 q5];
+isPos = true;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
