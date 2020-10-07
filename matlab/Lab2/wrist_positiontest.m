@@ -77,6 +77,12 @@ for th1 = -1.4 : 0.2 :1.4
 end 
 
 
+%single value test
+% q1 = [0, 1.7, -1.5, 0,0,0]
+% q = q1;
+% w_1= calc_wrist_pos(a1,q);
+% q_test = angle_ik(a1, w_1)
+
 function [w_value] = calc_wrist_pos(a, q)
 
     w_value =  [a(2)*cos(q(1))*sin(q(2)) - a(3)*cos(q(1))*sin(q(2))*sin(q(3)) + a(3)*cos(q(1))*cos(q(2))*cos(q(3));
@@ -90,35 +96,40 @@ function [q_value] = angle_ik(a, pos)
 
     theta1 = atan2(pos(2),pos(1));
     
-    omega = asin((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+    gamma = acos((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
+%       omega = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
+%       gamma = atan2(sqrt(1-omega^2), omega);
     
-%     theta3 = omega;
-%     theta3 = -omega-pi;
+        theta3 = (gamma-pi/2);
+%     theta3 = ((3*pi/2)-gamma);
+
+%     theta3 = -(gamma-pi/2);
+%     theta3 = -((3*pi/2)-gamma);
     
     
     
-    w = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
-    sqrt(1-w^2);
-    theta3 = atan2(w,sqrt(1-w^2)); %up elbow
+%     w = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((a(1)-pos(3))^2))/(2*a(2)*a(3)));
+%     sqrt(1-w^2);
+% %     theta3 = atan2(w,sqrt(1-w^2)); %up elbow
 %     theta3 = atan2(w,-1*sqrt(1-w^2)) ; % elbow down
     
     
     
-    if pos(1) < 0 || pos(2) <0 
-        alpha = -1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
-    else
-        alpha = +1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
-    end
-    
-    beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
+%     if pos(1) < 0 || pos(2) <0 
+%         alpha = -1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
+%     else
+%         alpha = +1* atan2((sqrt(pos(1)^2 + pos(2)^2)),(a(1)-pos(3)));
+%     end
+    alpha = atan2((pos(3)-a(1)), (sqrt(pos(1)^2 + pos(2)^2)));
+    beta = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)));
 %     beta = pi/2;
 %     alpha_2 = +1* atan2((a(1)-pos(3)), (sqrt(pos(1)^2 + pos(2)^2)))*180/pi
 %     beta_2 = atan2((a(3)*cos(theta3)),(a(2)+a(3)*sin(theta3)))*180/pi
 %     a_deg = alpha*180/pi
 %     b_deg = beta*180/pi
-%     theta2 = pi-alpha-beta;
+    theta2 = pi/2-alpha-beta;
 %     theta2 = pi+alpha+beta;
-    theta2 = pi-abs(alpha)-abs(beta); %test to account for -alpha 
+%     theta2 = pi-abs(alpha)-abs(beta); %test to account for -alpha 
 
     theta3_cy = -pi/2 + acos((-a(2)^2 - a(3)^2 +(pos(1)^2 + pos(2)^2)+((a(1)-pos(3))^2))/(2*a(2)*a(3)));
 %     theta3 = theta3_cy;
@@ -127,6 +138,6 @@ function [q_value] = angle_ik(a, pos)
 %     theta2 = theta2_cy;
 
     
-    q_value = [theta1 theta2 theta3];
+    q_value = [theta1 theta2 -theta3];
 end
         
