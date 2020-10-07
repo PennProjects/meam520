@@ -50,7 +50,7 @@ z = T0e(3,4);
 x_c = x - (d4+d5) * r13; 
 y_c = y - (d4+d5) * r23;
 z_c = z - (d4+d5) * r33;
-o_c = [x_c; y_c; z_c]; 
+o_c = [x_c; y_c; z_c] 
 
 % if not feasible
 % not reachable workspace 
@@ -65,13 +65,20 @@ o_c = [x_c; y_c; z_c];
 % define qs
 
 q1 = atan2(y_c,x_c);
+if q1==pi
+    q1 = 0;
+end
+
+
 
 c1 = cos(q1);
 s1 = sin(q1);
 
 gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
-q3_a(1) = gamma-pi/2 ;
-q3_a(2) = 3*pi/2-gamma;
+% q3_a(1) = gamma-pi/2 ;
+q3_a(1) = gamma-3*pi/2 ;
+% q3_a(2) = 3*pi/2-gamma;
+q3_a(2) = pi/2-gamma;
 c3_a = cos(q3_a); 
 s3_a = sin(q3_a);
 
@@ -79,8 +86,8 @@ alpha = atan2(z_c-d1, sqrt(x_c^2+y_c^2));
 beta = atan2(a3*c3_a, a2+a3*s3_a);
 q2_a(1) = pi/2 - alpha - beta(1);
 q2_a(2) = pi/2 - alpha - beta(2);
-q2_a(3) = 3*pi/2-alpha+beta(1);
-q2_a(4) = 3*pi/2-alpha+beta(2);
+q2_a(3) = pi/2-alpha+beta(1);
+q2_a(4) = pi/2-alpha+beta(2);
 % q2_a(3) = 3*pi/2-alpha-beta(1);
 % q2_a(4) = 3*pi/2-alpha-beta(2);
 
@@ -109,12 +116,22 @@ q5 = atan2(r11*s1-r21*c1, r12*s1-r22*c1);
 %     return 
 % end 
 
+theta3_cy = -pi/2 + acos((-a2^2 - a3^2 +(x_c^2 + y_c^2)+((d1-z_c)^2))/(2*a2*a3));
+q3_a(3) = theta3_cy;
+    
+theta2_cy = pi/2 -atan2((z_c-d1),(sqrt(x_c^2 + y_c^2))) + atan2((a3*sin(-pi/2-q3_a(3))),(a2+a3*cos(-pi/2-q3_a(3))));
+q2_a(5) = theta2_cy;
+
         
         
 q  = [q1, q2_a(1), q3_a(1), q4, q5;
       q1, q2_a(2), q3_a(1), q4, q5;
       q1, q2_a(3), q3_a(2), q4, q5;
       q1, q2_a(4), q3_a(2), q4, q5;
+      q1, q2_a(5), q3_a(3), q4, q5; %cy_s value
+      q1, q2_a(5), q3_a(1), q4, q5; % q2 - cy ,.... q3.- ours
+      q1, q2_a(2), q3_a(3), q4, q5;% sq .. ours ..... q3- cy   
+      
 ]
 
 
