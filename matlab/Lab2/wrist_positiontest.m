@@ -1,4 +1,7 @@
 
+clc 
+clear 
+
 syms c1 s1 d1 c2 s2 a2 c3 s3 a3 c4 s4 d4 c5 s5 d5
 H01 = [ c1 0 -s1 0;
         s1 0 c1 0;
@@ -94,10 +97,11 @@ for th1 = -1.4 : 0.2 :1.4
    end
 end
 
+q_test_con = round(q_test_con, 5);
 
-q_test_con(:,13) =  q_test_con(:,1)==q_test_con(:,7) ;
-q_test_con(:,14) = q_test_con(:,2)==q_test_con(:,8) ;
-q_test_con(:,15) = q_test_con(:,3)==q_test_con(:,9) ;
+q_test_con(:,14) =  (q_test_con(:,1)==q_test_con(:,7))+(q_test_con(:,1)==q_test_con(:,10));
+q_test_con(:,15) = (q_test_con(:,2)==q_test_con(:,8)) + (q_test_con(:,2)==q_test_con(:,11)) ;
+q_test_con(:,16) = (q_test_con(:,3)==q_test_con(:,9)) + (q_test_con(:,3)==q_test_con(:,12)) ;
 
 
 %single value test
@@ -127,6 +131,7 @@ function [q_value] = angle_ik(a, pos, option)
       omega = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
       gamma = atan2(sqrt(1-omega^2), omega);
     
+      
       theta3 = (pi/2-gamma);
 %       theta3 = 3*pi/2-gamma;
 
