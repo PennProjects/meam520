@@ -92,19 +92,21 @@ for th1 = -1.4 : 0.2 :1.4
 
                 q_test_1 = angle_ik(a1, w_1, 1);
                 q_test_2 = angle_ik(a1, w_1, 2);
-                q_test_con = [q_test_con;q,bl,q_test_1,q_test_2];
+                q_test_3 = angle_ik(a1, w_1, 3);
+                q_test_4 = angle_ik(a1, w_1, 4);
+                q_test_con = [q_test_con;q(:,1:3),bl,q_test_1,q_test_2, q_test_3, q_test_4];
         end
    end
 end
 
 q_test_con = round(q_test_con, 5);
 
-q_test_con(:,14) =  (q_test_con(:,1)==q_test_con(:,7))+(q_test_con(:,1)==q_test_con(:,10));
-q_test_con(:,15) = (q_test_con(:,2)==q_test_con(:,8)) + (q_test_con(:,2)==q_test_con(:,11)) ;
-q_test_con(:,16) = (q_test_con(:,3)==q_test_con(:,9)) + (q_test_con(:,3)==q_test_con(:,12)) ;
+q_test_con(:,16) =  (q_test_con(:,1)==q_test_con(:,4))+ (q_test_con(:,1)==q_test_con(:,7)) + (q_test_con(:,1)==q_test_con(:,10)) + (q_test_con(:,1)==q_test_con(:,13))	;
+q_test_con(:,17) = (q_test_con(:,2)==q_test_con(:,5)) + (q_test_con(:,2)==q_test_con(:,8)) + (q_test_con(:,2)==q_test_con(:,11)) + (q_test_con(:,2)==q_test_con(:,14)) ;
+q_test_con(:,18) = (q_test_con(:,3)==q_test_con(:,6)) + (q_test_con(:,3)==q_test_con(:,9)) + (q_test_con(:,3)==q_test_con(:,12)) + (q_test_con(:,3)==q_test_con(:,15));
 
 
-%single value test
+%single value test1
 % q1 = [0, 1.7, -1.5, 0,0,0]
 % q = q1;
 % w_1= calc_wrist_pos(a1,q);
@@ -132,13 +134,16 @@ function [q_value] = angle_ik(a, pos, option)
       gamma = atan2(sqrt(1-omega^2), omega);
     
       
-      theta3 = (pi/2-gamma);
-%       theta3 = 3*pi/2-gamma;
+      if option == 1 || option ==2
+        theta3 = (pi/2-gamma);
+      else
+        theta3 = (gamma-3*pi/2);
+      end
 
     alpha = atan2((pos(3)-a(1)), (sqrt(pos(1)^2 + pos(2)^2)));
     beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
 
-    if option ==1
+    if option ==1 || option ==3
         theta2 = pi/2-alpha-beta;
     else
         theta2 = -pi/2+alpha-beta;
