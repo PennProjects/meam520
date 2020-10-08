@@ -129,24 +129,36 @@ function [q_value] = angle_ik(a, pos, option)
         theta1 = atan2(pos(2),pos(1))-pi;
     end
     
-%     gamma = acos((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
-      omega = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
-      gamma = atan2(sqrt(1-omega^2), omega);
+    if theta1 == pi || theta1 ==-pi
+        theta1 =0;
+    end
+    
+    gamma = (a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3));
+%       omega = ((a(2)^2+ a(3)^2 -(pos(1)^2 + pos(2)^2)-((pos(3)-a(1))^2))/(2*a(2)*a(3)));
+%       gamma = atan2(sqrt(1-omega^2), omega);
     
       
-      if option == 1 || option ==2
-        theta3 = (pi/2-gamma);
+      if gamma <0  
+        theta3 = (acos(gamma)-3*pi/2);
       else
-        theta3 = (gamma-3*pi/2);
+          if option==1 || option==2
+            theta3 = (pi/2-acos(gamma));
+          else
+            theta3 = (acos(gamma)-3*pi/2);
+          end        
       end
 
     alpha = atan2((pos(3)-a(1)), (sqrt(pos(1)^2 + pos(2)^2)));
     beta = atan2((a(3)*cos(theta3)),(a(2)-a(3)*sin(theta3)));
 
-    if option ==1 || option ==3
+    if option ==1 
         theta2 = pi/2-alpha-beta;
-    else
+    elseif option ==2
         theta2 = -pi/2+alpha-beta;
+    elseif option ==3
+        theta2 = pi/2-alpha+beta;        
+    else
+        theta2 = -pi/2+alpha+beta;
     end
 
 

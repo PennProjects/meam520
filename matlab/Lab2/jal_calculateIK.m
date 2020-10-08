@@ -50,7 +50,7 @@ z = T0e(3,4);
 x_c = x - (d4+d5) * r13; 
 y_c = y - (d4+d5) * r23;
 z_c = z - (d4+d5) * r33;
-o_c = [x_c; y_c; z_c] 
+o_c = [x_c; y_c; z_c] ;
 
 % if not feasible
 % not reachable workspace 
@@ -79,16 +79,23 @@ gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
 
 
 q3_a(1) = pi/2-gamma;
-% q3_a(2) = gamma-3*pi/2 ;
-q3_a(2) = pi/2-gamma;
+q3_a(2) = gamma-3*pi/2 ;
+
+
 c3_a = cos(q3_a); 
 s3_a = sin(q3_a);
 
 
 % theta 2
 q2_a(1) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
-% q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
-q2_a(2) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+q2_a(3) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+q2_a(4) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+
+q2_a(5) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(6) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(7) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(8) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
 
 c2_a = cos(q2_a);
 s2_a = sin(q2_a);
@@ -150,7 +157,7 @@ q5_a(2) = atan2(-R3e(3,1),-R3e(3,2)); %check why -ve sign is required
 % end 
 
 theta3_cy = -pi/2 + acos((-a2^2 - a3^2 +(x_c^2 + y_c^2)+((d1-z_c)^2))/(2*a2*a3));
-q3_a(3) = theta3_cy;
+q3_a(4) = theta3_cy;
     
 theta2_cy = pi/2 -atan2((z_c-d1),(sqrt(x_c^2 + y_c^2))) + atan2((a3*sin(-pi/2-q3_a(3))),(a2+a3*cos(-pi/2-q3_a(3))));
 q2_a(5) = theta2_cy;
@@ -158,10 +165,16 @@ q2_a(5) = theta2_cy;
         
         
 q  = [q1, q2_a(1), q3_a(1), q4_a(1), q5_a(1);
-      q1, q2_a(2), q3_a(2), q4_a(2), q5_a(2);
-      q1, q2_a(5), q3_a(3), q4_a(1), q5_a(1); %cy_s value  
+      q1, q2_a(2), q3_a(1), q4_a(1), q5_a(1);
+      q1, q2_a(3), q3_a(1), q4_a(2), q5_a(2);
+      q1, q2_a(4), q3_a(1), q4_a(2), q5_a(2);
+      q1, q2_a(5), q3_a(2), q4_a(2), q5_a(2);
+      q1, q2_a(6), q3_a(2), q4_a(2), q5_a(2);
+      q1, q2_a(7), q3_a(2), q4_a(2), q5_a(2);
+      q1, q2_a(8), q3_a(2), q4_a(2), q5_a(2);      
+      q1, q2_a(5), q3_a(4), q4_a(1), q5_a(1); %cy_s value  
       q1, q2_a(2), q3_a(1), q4_a(2), q5_a(2);
-]
+];
 
 
 isPos = true;
