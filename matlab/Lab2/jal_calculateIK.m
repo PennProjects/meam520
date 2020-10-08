@@ -79,14 +79,17 @@ gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
 
 
 q3_a(1) = pi/2-gamma;
-q3_a(2) = gamma-3*pi/2 ;
+% q3_a(2) = gamma-3*pi/2 ;
+q3_a(2) = pi/2-gamma;
 c3_a = cos(q3_a); 
 s3_a = sin(q3_a);
 
 
 % theta 2
 q2_a(1) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
-q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+% q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(2) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+
 c2_a = cos(q2_a);
 s2_a = sin(q2_a);
 
@@ -103,7 +106,7 @@ T23 = DHParam(L(3), 0, 0, q(3)+pi/2);
 
 T03 = T01 * T12 * T23;
 R03 = T03(1:3, 1:3);
-R0e = T0e(1:3,1:3)
+R0e = T0e(1:3,1:3);
 R3e = transpose(R03)*R0e;
 
 q4_a(1) = atan2(R3e(2,3), R3e(1,3));
@@ -123,7 +126,7 @@ T23 = DHParam(L(3), 0, 0, q(3)+pi/2);
 
 T03 = T01 * T12 * T23;
 R03 = T03(1:3, 1:3);
-R0e = T0e(1:3,1:3)
+R0e = T0e(1:3,1:3);
 R3e = transpose(R03)*R0e;
 
 q4_a(2) = atan2(R3e(2,3), R3e(1,3));
@@ -156,7 +159,8 @@ q2_a(5) = theta2_cy;
         
 q  = [q1, q2_a(1), q3_a(1), q4_a(1), q5_a(1);
       q1, q2_a(2), q3_a(2), q4_a(2), q5_a(2);
-      q1, q2_a(5), q3_a(3), q4_a(1), q5_a(1); %cy_s value    
+      q1, q2_a(5), q3_a(3), q4_a(1), q5_a(1); %cy_s value  
+      q1, q2_a(2), q3_a(1), q4_a(2), q5_a(2);
 ]
 
 
