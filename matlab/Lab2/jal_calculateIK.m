@@ -65,9 +65,7 @@ o_c = [x_c; y_c; z_c]
 % define qs
 
 q1 = atan2(y_c,x_c);
-if q1==pi
-    q1 = 0;
-end
+
 
 
 
@@ -91,15 +89,39 @@ q2_a(4) = pi/2-alpha+beta(2);
 % q2_a(3) = 3*pi/2-alpha-beta(1);
 % q2_a(4) = 3*pi/2-alpha-beta(2);
 
+
+% test
+alphaa = atan2(sqrt(x_c^2+y_c^2), (z_c-d1));
+betaa = atan2(a3*sin(pi/2-gamma),a2*cos(pi/2-gamma)-a2);
+q2_a(6) = -(betaa-alphaa);
 c2_a = cos(q2_a);
 s2_a = sin(q2_a);
 
+q = [q1, q2_a(6), q3_a(2), 0,0];
+L = [d1,a2,a3,d4,d5];
+
+T01 = DHParam(0, -pi/2, L(1), q(1));
+T12 = DHParam(L(2), 0, 0, q(2)-pi/2);
+T23 = DHParam(L(3), 0, 0, q(3)+pi/2);
+% T34 = DHParam(0, -pi/2, 0,q(4)-pi/2);
+% T4e = DHParam(0, 0, L(4)+L(5), q(5));
+
+T03 = T01 * T12 * T23;
+R03 = T03(1:3, 1:3);
+R0e = T0e(1:3,1:3)
+R3e = transpose(R03)*R0e;
+
+q4_t = atan2(R3e(2,3), R3e(1,3));
+q5_t = atan2(-R3e(3,1),-R3e(3,2));
+
+%end test
 
 
-q3 = q3_a(1);
+
+q3 = q3_a(2);
 c3 = cos(q3); 
 s3 = sin(q3);
-q2 = q2_a(1);
+q2 = q2_a(6);
 c2 = cos(q2);
 s2 = sin(q2);
 
@@ -128,14 +150,26 @@ q  = [q1, q2_a(1), q3_a(1), q4, q5;
       q1, q2_a(2), q3_a(1), q4, q5;
       q1, q2_a(3), q3_a(2), q4, q5;
       q1, q2_a(4), q3_a(2), q4, q5;
-      q1, q2_a(5), q3_a(3), q4, q5; %cy_s value
+      q1, q2_a(5), q3_a(3), q4_t, q5_t; %cy_s value
       q1, q2_a(5), q3_a(1), q4, q5; % q2 - cy ,.... q3.- ours
-      q1, q2_a(2), q3_a(3), q4, q5;% sq .. ours ..... q3- cy   
+      q1, q2_a(2), q3_a(3), q4, q5;% sq .. ours ..... q3- cy  
+      q1, q2_a(6), q3_a(2), q4_t, q5_t;
       
 ]
 
 
 isPos = true;
+
+
+
+
+
+function [hom_trans_matrix] = DHParam(a, alpha, d, theta)
+hom_trans_matrix = [cos(theta), -sin(theta)*cos(alpha), sin(theta)*sin(alpha), a*cos(theta); 
+                            sin(theta), cos(theta)*cos(alpha), -cos(theta)*sin(alpha), a*sin(theta);
+                            0, sin(alpha), cos(alpha), d;
+                            0, 0, 0, 1];
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
