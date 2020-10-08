@@ -73,32 +73,23 @@ c1 = cos(q1);
 s1 = sin(q1);
 
 gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
-% q3_a(1) = gamma-pi/2 ;
-q3_a(1) = gamma-3*pi/2 ;
-% q3_a(2) = 3*pi/2-gamma;
-q3_a(2) = pi/2-gamma;
+
+
+q3_a(1) = pi/2-gamma;
+q3_a(2) = gamma-3*pi/2 ;
 c3_a = cos(q3_a); 
 s3_a = sin(q3_a);
 
-alpha = atan2(z_c-d1, sqrt(x_c^2+y_c^2));
-beta = atan2(a3*c3_a, a2+a3*s3_a);
-q2_a(1) = pi/2 - alpha - beta(1);
-q2_a(2) = pi/2 - alpha - beta(2);
-q2_a(3) = pi/2-alpha+beta(1);
-q2_a(4) = pi/2-alpha+beta(2);
-% q2_a(3) = 3*pi/2-alpha-beta(1);
-% q2_a(4) = 3*pi/2-alpha-beta(2);
 
-
-% test
-alphaa = atan2(sqrt(x_c^2+y_c^2), (z_c-d1));
-betaa = atan2(a3*sin(pi/2-gamma),a2*cos(pi/2-gamma)-a2);
-q2_a(6) = -(betaa-alphaa);
-q2_a(7) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+% theta 2
+q2_a(1) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
 c2_a = cos(q2_a);
 s2_a = sin(q2_a);
 
-q = [q1, q2_a(6), q3_a(2), 0,0];
+
+% calculate theta 4 and theta 5
+q = [q1, q2_a(1), q3_a(1), 0,0];
 L = [d1,a2,a3,d4,d5];
 
 T01 = DHParam(0, -pi/2, L(1), q(1));
@@ -112,26 +103,39 @@ R03 = T03(1:3, 1:3);
 R0e = T0e(1:3,1:3)
 R3e = transpose(R03)*R0e;
 
-q4_t = atan2(R3e(2,3), R3e(1,3));
-q5_t = atan2(-R3e(3,1),-R3e(3,2));
+q4_a(1) = atan2(R3e(2,3), R3e(1,3));
+q5_a(1) = atan2(-R3e(3,1),-R3e(3,2)); %check why -ve sign is required
+
+
+% using second angle
+
+q = [q1, q2_a(2), q3_a(2), 0,0];
+L = [d1,a2,a3,d4,d5];
+
+T01 = DHParam(0, -pi/2, L(1), q(1));
+T12 = DHParam(L(2), 0, 0, q(2)-pi/2);
+T23 = DHParam(L(3), 0, 0, q(3)+pi/2);
+% T34 = DHParam(0, -pi/2, 0,q(4)-pi/2);
+% T4e = DHParam(0, 0, L(4)+L(5), q(5));
+
+T03 = T01 * T12 * T23;
+R03 = T03(1:3, 1:3);
+R0e = T0e(1:3,1:3)
+R3e = transpose(R03)*R0e;
+
+q4_a(2) = atan2(R3e(2,3), R3e(1,3));
+q5_a(2) = atan2(-R3e(3,1),-R3e(3,2)); %check why -ve sign is required
+
+
+
+
+
+
+
+
 
 %end test
 
-
-
-q3 = q3_a(2);
-c3 = cos(q3); 
-s3 = sin(q3);
-q2 = q2_a(6);
-c2 = cos(q2);
-s2 = sin(q2);
-
-% R3e = (R03).T * R0e 
-r3e_cos4 = r13*(c1*c2*c3 - c1*s2*s3) + r23*(c2*c3*s1 - s1*s2*s3) - r33*(c2*s3 + c3*s2);
-r3e_sin4 = -r13*(c1*c2*s3 + c1*c3*s2) - r23*(c2*s1*s3 + c3*s1*s2) - r33*(c2*c3 - s2*s3); 
-
-q4 = atan2(r3e_sin4, r3e_cos4);
-q5 = atan2(r11*s1-r21*c1, r12*s1-r22*c1); 
 
 % if q1 > upperLim(1) || q1 <lowerLim(1) || q2 > upperLim(2) || q2 < lowerLim(2)
 %     isPos = 0;
@@ -147,16 +151,9 @@ q2_a(5) = theta2_cy;
 
         
         
-q  = [q1, q2_a(1), q3_a(1), q4, q5;
-      q1, q2_a(2), q3_a(1), q4, q5;
-      q1, q2_a(3), q3_a(2), q4, q5;
-      q1, q2_a(4), q3_a(2), q4, q5;
-      q1, q2_a(5), q3_a(3), q4_t, q5_t; %cy_s value
-      q1, q2_a(5), q3_a(1), q4, q5; % q2 - cy ,.... q3.- ours
-      q1, q2_a(2), q3_a(3), q4, q5;% sq .. ours ..... q3- cy  
-      q1, q2_a(6), q3_a(2), q4_t, q5_t;
-      q1, q2_a(7), q3_a(2), q4_t, q5_t;
-      
+q  = [q1, q2_a(1), q3_a(1), q4_a(1), q5_a(1);
+      q1, q2_a(2), q3_a(2), q4_a(2), q5_a(2);
+      q1, q2_a(5), q3_a(3), q4_a(1), q5_a(1); %cy_s value    
 ]
 
 
@@ -172,6 +169,36 @@ hom_trans_matrix = [cos(theta), -sin(theta)*cos(alpha), sin(theta)*sin(alpha), a
                             0, sin(alpha), cos(alpha), d;
                             0, 0, 0, 1];
 end
+
+%archival code
+
+% alpha = atan2(z_c-d1, sqrt(x_c^2+y_c^2));
+% beta = atan2(a3*c3_a, a2+a3*s3_a);
+% q2_a(1) = pi/2 - alpha - beta(1);
+% q2_a(2) = pi/2 - alpha - beta(2);
+% q2_a(3) = pi/2-alpha+beta(1);
+% q2_a(4) = pi/2-alpha+beta(2);
+% q2_a(3) = 3*pi/2-alpha-beta(1);
+% q2_a(4) = 3*pi/2-alpha-beta(2);
+
+
+
+% q3 = q3_a(2);
+% c3 = cos(q3); 
+% s3 = sin(q3);
+% q2 = q2_a(6);
+% c2 = cos(q2);
+% s2 = sin(q2);
+% 
+% % R3e = (R03).T * R0e 
+% r3e_cos4 = r13*(c1*c2*c3 - c1*s2*s3) + r23*(c2*c3*s1 - s1*s2*s3) - r33*(c2*s3 + c3*s2);
+% r3e_sin4 = -r13*(c1*c2*s3 + c1*c3*s2) - r23*(c2*s1*s3 + c3*s1*s2) - r33*(c2*c3 - s2*s3); 
+% 
+% q4 = atan2(r3e_sin4, r3e_cos4);
+% q5 = atan2(r11*s1-r21*c1, r12*s1-r22*c1); 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 end
