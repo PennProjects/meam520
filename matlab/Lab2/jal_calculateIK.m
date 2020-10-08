@@ -94,6 +94,7 @@ q2_a(4) = pi/2-alpha+beta(2);
 alphaa = atan2(sqrt(x_c^2+y_c^2), (z_c-d1));
 betaa = atan2(a3*sin(pi/2-gamma),a2*cos(pi/2-gamma)-a2);
 q2_a(6) = -(betaa-alphaa);
+q2_a(7) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
 c2_a = cos(q2_a);
 s2_a = sin(q2_a);
 
@@ -154,6 +155,7 @@ q  = [q1, q2_a(1), q3_a(1), q4, q5;
       q1, q2_a(5), q3_a(1), q4, q5; % q2 - cy ,.... q3.- ours
       q1, q2_a(2), q3_a(3), q4, q5;% sq .. ours ..... q3- cy  
       q1, q2_a(6), q3_a(2), q4_t, q5_t;
+      q1, q2_a(7), q3_a(2), q4_t, q5_t;
       
 ]
 
