@@ -65,6 +65,9 @@ o_c = [x_c; y_c; z_c]
 % define qs
 
 q1 = atan2(y_c,x_c);
+if q1==pi
+    q1=0;
+end
 
 
 
