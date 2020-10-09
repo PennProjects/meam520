@@ -48,8 +48,9 @@ p1 = [0 0 0];
 p2 = [0 0 50];
 p3 = o_c;
 
+
 normal_vec = cross(p1-p2,p1-p3);
-normal_vec = 1*normal_vec/norm(normal_vec);
+normal_vec = 1*normal_vec/norm(normal_vec)
 
 normal_line = [o_c; (o_c+normal_vec*10)];
 
@@ -59,14 +60,63 @@ e_norm = e_desired/norm(e_desired);
 e_from_wrist = e_desired-o_c;
 e_proj_on_normal = dot(e_from_wrist,normal_vec)*normal_vec;
 e_possible_from_wrist =  e_from_wrist-e_proj_on_normal;
-e_possible = e_possible_from_wrist+o_c;
+e_possible = e_possible_from_wrist+o_c
 e_pos_norm = e_possible/norm(e_possible);
 
-not_in_plane = round(dot(normal_vec, e_norm),3)
-is_in_plane = round(dot(normal_vec, e_pos_norm),3)
+not_in_plane = round(dot(normal_vec, e_norm),3);
+is_in_plane = round(dot(normal_vec, e_pos_norm),3);
 
 
-%method 2
+
+e_desired_zaxs = [e_desired; (e_desired+[r13,r23,r33]*10)];
+e_desired_yaxs = [e_desired; (e_desired+[r12,r22,r32]*10)];
+e_desired_xaxs = [e_desired; (e_desired+[r11,r21,r31]*10)];
+
+e_desired_zaxis_unitvector = [r13,r23,r33];
+e_desired_zaxis_unitvector_prj_on_normal = dot(e_desired_zaxis_unitvector,normal_vec)*normal_vec;
+e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_prj_on_normal;
+e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector);
+
+
+e_possible_zaxs = [e_possible;(e_possible+e_possible_zaxis_norm*20)]; 
+
+
+
+[X,Y,Z,reOrder] = makeMesh(p1,p2,p3);
+figure();
+patch(X(reOrder),Y(reOrder),Z(reOrder),'b');
+alpha(0.3);
+
+
+
+hold on
+plot3(p1(1),p1(2),p1(3), '.', 'MarkerSize',50,'color', 'b')
+plot3(p2(1),p2(2),p2(3), '.', 'MarkerSize',50, 'color', 'b')
+plot3(p3(1),p3(2),p3(3), '.', 'MarkerSize',50, 'color', 'b')
+plot3(normal_line(:,1), normal_line(:,2), normal_line(:,3), 'LineWidth', 5,'color', '#000000')
+
+
+plot3(e_desired(1),e_desired(2),e_desired(3),'.', 'MarkerSize',50,'color', 'r')
+plot3(e_desired_zaxs(:,1), e_desired_zaxs(:,2), e_desired_zaxs(:,3), 'LineWidth', 3,'color', 'b')
+plot3(e_desired_yaxs(:,1), e_desired_yaxs(:,2), e_desired_yaxs(:,3), 'LineWidth', 3,'color', 'g')
+plot3(e_desired_xaxs(:,1), e_desired_xaxs(:,2), e_desired_xaxs(:,3), 'LineWidth', 3,'color', 'r')
+
+
+plot3(e_possible(1),e_possible(2), e_possible(3), '.', 'MarkerSize',50,'color', 'g')
+plot3(e_possible_zaxs(:,1), e_possible_zaxs(:,2), e_possible_zaxs(:,3), 'LineWidth', 3,'color', 'b')
+
+%fin
+grid on;
+view([30 30]);
+xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+
+
+
+function [X,Y,Z, reOrder] = makeMesh(p1,p2,p3)
+
+%plot
 pointA = p1;
 pointB = p2;
 pointC = p3;
@@ -86,25 +136,7 @@ zLim = [min(z)*1.2 max(z)*1.2];
 [X,Z] = meshgrid(xLim,zLim);
 Y = (A * X + C * Z + D)/ (-B);
 reOrder = [1 2  4 3];
-figure();patch(X(reOrder),Y(reOrder),Z(reOrder),'b');
-grid on;
-view([30 30]);
-alpha(0.3);
-
-hold on
-plot3(p1(1),p1(2),p1(3), '.', 'MarkerSize',50,'color', 'b')
-plot3(p2(1),p2(2),p2(3), '.', 'MarkerSize',50, 'color', 'b')
-plot3(p3(1),p3(2),p3(3), '.', 'MarkerSize',50, 'color', 'b')
-plot3(e_desired(1),e_desired(2),e_desired(3),'.', 'MarkerSize',50,'color', 'r')
-plot3(normal_line(:,1), normal_line(:,2), normal_line(:,3), 'LineWidth', 5,'color', '#000000')
-plot3(e_possible(1),e_possible(2), e_possible(3), '.', 'MarkerSize',50,'color', 'g')
-
-
-xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
-ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
-zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
-
-
+end
 
 
 
