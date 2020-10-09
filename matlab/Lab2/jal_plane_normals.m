@@ -1,4 +1,7 @@
 
+clc
+clear
+
 d1 = 76.2;                      % Distance between joint 1 and joint 2
 a2 = 146.05;                    % Distance between joint 2 and joint 3
 a3 = 187.325;                   % Distance between joint 3 and joint 4
@@ -6,10 +9,10 @@ d4 = 34;                        % Distance between joint 4 and joint 5
 d5 = 34;                        % Distance between joint 4 and end effector
 
 % Target 1
-T0e = [[   0.019,    0.969,    0.245,   47.046];[   0.917,   -0.115,    0.382,   73.269];[   0.398 ,   0.217,   -0.891,  100.547];[   0.,       0. ,      0.,       1.]];
+% T0e = [[   0.019,    0.969,    0.245,   47.046];[   0.917,   -0.115,    0.382,   73.269];[   0.398 ,   0.217,   -0.891,  100.547];[   0.,       0. ,      0.,       1.]];
 
 % Target 2
-% T0e = [[  -0.993,   -0.,       0.119,  -96.936];[   0.,      -1.,      -0.,       0.   ];[   0.119,    0.,       0.993,  401.229];[   0. ,      0.  ,     0.  ,     1.   ]];
+T0e = [[  -0.993,   -0.,       0.119,  -96.936];[   0.,      -1.,      -0.,       0.   ];[   0.119,    0.,       0.993,  401.229];[   0. ,      0.  ,     0.  ,     1.   ]];
 
 % Target 3
 % T0e =[ [-0.3409003, -0.1074855,  0.9339346, 282.96];[0.7842780, -0.5802868,  0.2194888, -48.302];[0.5183581,  0.8072881,  0.2821184, 235.071 ]; [0,0,0,1]];
@@ -37,38 +40,56 @@ o_c = [x_c; y_c; z_c] ;
 
 
 
-p1 = [0 0 100];
+p1 = [0 0 0];
 p2 = [0 0 50];
 p3 = transpose(o_c);
 
 normal = cross(p1-p2,p1-p3);
-normal = 10*normal/norm(normal);
-normal = transpose(normal);
-normal = [normal, transpose(p1)];
+normal = 1*normal/norm(normal);
 
 
-patch(p1,p2,p3);
-% % fill3(p1,p2,p3, 'r')
-% % plot3(p1,p2,p3, '.')
-% figure('color','w')
-% h=patch('Faces',1:3,'Vertices',[p1;p2;p3]);
-% set(h,'FaceColor','r','EdgeColor','k','LineWidth',2,'FaceAlpha',0.5)
-% axis equal vis3d
-% % view([30 30])
-% 
-% xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold')
-% ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold')
-% zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold')
+e_desired = [x,y,z];
 
-% grid on
-% alpha(0.3)
-% hold on
-% 
-% plot3(normal(1, : ),normal(2, : ), normal(3, : ), 'Color','#000000', 'LineWidth', 5 )
+x = dot(normal, e_desired)
 
-xlim([-10,50])
-ylim([-10,50])
-zlim([-10,170])
+
+%method 2
+pointA = p1;
+pointB = p2;
+pointC = p3;
+normal = cross(pointA-pointB, pointA-pointC); %# Calculate plane normal
+%# Transform points to x,y,z
+x = [pointA(1) pointB(1) pointC(1)];  
+y = [pointA(2) pointB(2) pointC(2)];
+z = [pointA(3) pointB(3) pointC(3)];
+
+%Find all coefficients of plane equation    
+A = normal(1); B = normal(2); C = normal(3);
+D = -dot(normal,pointA);
+%Decide on a suitable showing range
+xLim=[min(x)*1.2 max(x)*2];
+zLim = [min(z)*1.2 max(z)*1.2];
+
+[X,Z] = meshgrid(xLim,zLim);
+Y = (A * X + C * Z + D)/ (-B);
+reOrder = [1 2  4 3];
+figure();patch(X(reOrder),Y(reOrder),Z(reOrder),'b');
+grid on;
+view([30 30]);
+alpha(0.3);
+
+hold on
+plot3(p1(1),p1(2),p1(3), '.', 'MarkerSize',50,'color', 'b')
+plot3(p2(1),p2(2),p2(3), '.', 'MarkerSize',50, 'color', 'b')
+plot3(p3(1),p3(2),p3(3), '.', 'MarkerSize',50, 'color', 'b')
+plot3(e_desired(1),e_desired(2),e_desired(3),'.', 'MarkerSize',50,'color', 'r')
+
+xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold');
+ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold');
+zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold');
+
+
+
 
 
 
