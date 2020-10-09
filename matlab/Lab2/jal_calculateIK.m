@@ -122,7 +122,7 @@ q5_a(1) = atan2(-R3e(3,1),-R3e(3,2)); %check why -ve sign is required
 
 % using second angle
 
-q = [q1, q2_a(2), q3_a(2), 0,0];
+q = [q1, q2_a(3), q3_a(1), 0,0];
 L = [d1,a2,a3,d4,d5];
 
 T01 = DHParam(0, -pi/2, L(1), q(1));
