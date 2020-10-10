@@ -49,12 +49,13 @@ r33 = T0e(3,3);
 x = T0e(1,4);
 y = T0e(2,4);
 z = T0e(3,4);
+e = [x y z];
 
 % wrist center positions
 x_c = x - (d5) * r13; 
 y_c = y - (d5) * r23;
 z_c = z - (d5) * r33;
-o_c = [x_c; y_c; z_c]; % Position of wrist centre to reach
+o_c = [x_c y_c z_c]; % Position of wrist centre to reach
 
 % link vector
 L = [d1,a2,a3,d4,d5];
@@ -148,13 +149,30 @@ for i =1:size(q,1)
     end
 end
 
+distance = [];
+
+%Ordering q values in the order of closest to e desired
+
+%finding distance of all e reached and e desired
+for i = 1:size(q_reduced,1)
+    distance = [distance;get_distance(q_reduced(i,:),e)]; 
+end
+%sorting them in ascending order of distance
+[~,index] = sort(distance(:,1));
+q_sorted = q_reduced(index,:);
+
+
+
+
+
+
 % % % % % % 
 % Now we check if there target transformation is feasible
 %3 points in the plane of the robot
 % origin, a point along z axis and the wirst centre calculated above
 p1 = [0 0 0];
 p2 = [0 0 50];
-p3 = transpose(o_c);
+p3 = o_c;
 
 %Finding the normal vector for the robot plane
 %this plane is formed by the points p1, p2 and p3
@@ -166,14 +184,14 @@ normal_robot_plane = 1*normal_robot_plane/norm(normal_robot_plane);
 e_desired = [x,y,z];
 
 %This the the vector from the wrist centre to e_desired
-e_desired_from_wrist = e_desired-transpose(o_c); 
+e_desired_from_wrist = e_desired-o_c; 
 e_proj_on_normal = dot(e_desired_from_wrist,normal_robot_plane)*normal_robot_plane;
 
 % e_possible is the projection of e_desired vector from wrist in the robot plane
 e_possible_from_wrist =  e_desired_from_wrist-e_proj_on_normal; 
 
 %we add the wrist_centre to get e_possible in global frame
-e_possible = e_possible_from_wrist+transpose(o_c);
+e_possible = e_possible_from_wrist+o_c;
 
 %calculating the angle between the normal to the robot plane and the e_desired vector
 %If this value is 0, e desired is feasible and e_desired = e_possible
@@ -219,8 +237,21 @@ function [q_list] = gen_theta4_5(T0e_, theta1, theta2,theta3, L_)
          
 end
 
+function distance = get_distance(q, e)
+    T01_ = DHParam(0, -pi/2, L(1), q(1));
+    T12_ = DHParam(L(2), 0, 0, q(2)-pi/2);
+    T23_ = DHParam(L(3), 0, 0, q(3)+pi/2);
+    T34_ = DHParam(0, -pi/2, 0,q(4)-pi/2);
+    T4e_ = DHParam(0, 0, L(4)+L(5), q(5));
+    
+    T0e_ = T01_ * T12_ * T23_*T34_*T4e_;
+    
+    e_reach = [T0e_(1,4) T0e_(2,4) T0e_(3,4)];
+    
+    distance = norm(e_reach-e,2);
+end
 
-q = q_reduced;
+q = q_sorted;
 isPos
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
