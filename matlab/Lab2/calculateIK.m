@@ -127,15 +127,15 @@ end
 within_limit_flag = ones*[1:size(q,1)];
 
 for i =1:size(q,1)
-    if q(i,1) >= upperLim(1) || q(i,1) <= lowerLim(1)
+    if q(i,1) > upperLim(1) || q(i,1) < lowerLim(1)
        within_limit_flag(i) = 0;
-    elseif q(i,2) >= upperLim(2) || q(i,2) <= lowerLim(2)
+    elseif q(i,2) > upperLim(2) || q(i,2) < lowerLim(2)
         within_limit_flag(i) = 0 ;
-    elseif q(i,3) >= upperLim(3) || q(i,3) <= lowerLim(3)
+    elseif q(i,3) > upperLim(3) || q(i,3) < lowerLim(3)
         within_limit_flag(i) = 0;
-    elseif q(i,4) >= upperLim(4) || q(i,4) <= lowerLim(4)
+    elseif q(i,4) > upperLim(4) || q(i,4) < lowerLim(4)
         within_limit_flag(i) = 0;
-    elseif q(i,5) >= upperLim(5) || q(i,5) <= lowerLim(5)
+    elseif q(i,5) > upperLim(5) || q(i,5) < lowerLim(5)
         within_limit_flag(i) = 0;
     end   
 end
