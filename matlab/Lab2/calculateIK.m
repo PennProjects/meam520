@@ -154,12 +154,16 @@ distance = [];
 %Ordering q values in the order of closest to e desired
 
 %finding distance of all e reached and e desired
-for i = 1:size(q_reduced,1)
-    distance = [distance;get_distance(q_reduced(i,:),e)]; 
-end
+if size(q_reduced,1) > 0
+    for i = 1:size(q_reduced,1)
+        distance = [distance;get_distance(q_reduced(i,:),e)]; 
+    end
 %sorting them in ascending order of distance
-[~,index] = sort(distance(:,1));
-q_sorted = q_reduced(index,:);
+    [~,index] = sort(distance(:,1));
+    q_sorted = q_reduced(index,:);
+else
+    q_sorted = q_reduced;
+end
 
 
 
