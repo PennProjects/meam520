@@ -148,12 +148,50 @@ for i =1:size(q,1)
     end
 end
 
+% % % % % % 
+% Now we check if there target transformation is feasible
+%3 points in the plane of the robot
+% origin, a point along z axis and the wirst centre calculated above
+p1 = [0 0 0];
+p2 = [0 0 50];
+p3 = transpose(o_c);
 
+%Finding the normal vector for the robot plane
+%this plane is formed by the points p1, p2 and p3
+normal_robot_plane = cross(p1-p2,p1-p3);
+normal_robot_plane = 1*normal_robot_plane/norm(normal_robot_plane);
 
+%Checking if the target is feasible
+%The target is feasible if it lies in the robot plane
+e_desired = [x,y,z];
 
+%This the the vector from the wrist centre to e_desired
+e_desired_from_wrist = e_desired-transpose(o_c); 
+e_proj_on_normal = dot(e_desired_from_wrist,normal_robot_plane)*normal_robot_plane;
 
+% e_possible is the projection of e_desired vector from wrist in the robot plane
+e_possible_from_wrist =  e_desired_from_wrist-e_proj_on_normal; 
 
+%we add the wrist_centre to get e_possible in global frame
+e_possible = e_possible_from_wrist+transpose(o_c);
 
+%calculating the angle between the normal to the robot plane and the e_desired vector
+%If this value is 0, e desired is feasible and e_desired = e_possible
+e_norm = e_desired/norm(e_desired);
+feasibility_check = round(dot(normal_robot_plane, e_norm),3);
+
+if feasibility_check ~= 0
+    isPos = 0;
+end
+% % % % % % % % 
+
+%Now we get the rotation matrix of e_possible
+%zaxis of the e_desired is projected onto the robot plane
+e_desired_zaxis_unitvector = [r13,r23,r33]; %As given in T0e
+e_desired_zaxis_unitvector_proj_on_normal = dot(e_desired_zaxis_unitvector,normal_vec)*normal_vec;
+%we now get the z axis of the e_possible  = projection of e_desired on robot plane
+e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_proj_on_normal;
+e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector); % normalizing z axis of e_possible
 
 
 
@@ -183,6 +221,7 @@ end
 
 
 q = q_reduced;
+isPos
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
