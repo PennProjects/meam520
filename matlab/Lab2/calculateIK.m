@@ -69,6 +69,12 @@ if q1==pi ||q1 == -pi
     q1=0; % To remove -pi and pi from answers
 end
 
+if q1 > upperLim(1)
+    q1 = q1-pi;
+elseif q1 < lowerLim(1)
+    q1 = pi+q1;
+end
+
 
 %Calculating q3
 gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
@@ -121,15 +127,15 @@ end
 within_limit_flag = ones*[1:size(q,1)];
 
 for i =1:size(q,1)
-    if q(i,1) > upperLim(1) || q(i,1) < lowerLim(1)
+    if q(i,1) >= upperLim(1) || q(i,1) <= lowerLim(1)
        within_limit_flag(i) = 0;
-    elseif q(i,2) > upperLim(2) || q(i,2) < lowerLim(2)
+    elseif q(i,2) >= upperLim(2) || q(i,2) <= lowerLim(2)
         within_limit_flag(i) = 0 ;
-    elseif q(i,3) > upperLim(3) || q(i,3) < lowerLim(3)
+    elseif q(i,3) >= upperLim(3) || q(i,3) <= lowerLim(3)
         within_limit_flag(i) = 0;
-    elseif q(i,4) > upperLim(4) || q(i,4) < lowerLim(4)
+    elseif q(i,4) >= upperLim(4) || q(i,4) <= lowerLim(4)
         within_limit_flag(i) = 0;
-    elseif q(i,5) > upperLim(5) || q(i,5) < lowerLim(5)
+    elseif q(i,5) >= upperLim(5) || q(i,5) <= lowerLim(5)
         within_limit_flag(i) = 0;
     end   
 end
@@ -152,7 +158,6 @@ end
 distance = [];
 
 %Ordering q values in the order of closest to e desired
-
 %finding distance of all e reached and e desired
 if size(q_reduced,1) > 0
     for i = 1:size(q_reduced,1)
@@ -164,10 +169,6 @@ if size(q_reduced,1) > 0
 else
     q_sorted = q_reduced;
 end
-
-
-
-
 
 
 % % % % % % 
@@ -208,13 +209,57 @@ end
 % % % % % % % % 
 
 %Now we get the rotation matrix of e_possible
-%zaxis of the e_desired is projected onto the robot plane
-e_desired_zaxis_unitvector = [r13,r23,r33]; %As given in T0e
-e_desired_zaxis_unitvector_proj_on_normal = dot(e_desired_zaxis_unitvector,normal_robot_plane)*normal_robot_plane;
-%we now get the z axis of the e_possible  = projection of e_desired on robot plane
-e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_proj_on_normal;
-e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector); % normalizing z axis of e_possible
 
+if feasibility_check ~=0 && size(q_reduced,1) > 0
+    %zaxis of the e_desired is projected onto the robot plane
+    e_desired_zaxis_unitvector = [r13,r23,r33]; %As given in T0e
+    e_desired_zaxis_unitvector_proj_on_normal = dot(e_desired_zaxis_unitvector,normal_robot_plane)*normal_robot_plane;
+
+    %we now get the z axis of the e_possible  = projection of e_desired on robot plane
+    e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_proj_on_normal;
+    e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector); % normalizing z axis of e_possible
+
+
+    %To find projection of y axis of e_desired onto wrist's X-Y plane
+    %the z axis of the wrist's rotation matrix R03 will be the normal to the X-Y plane of the wrist
+    % We will project the y axis of the e_desired onto the X-Y plane of the
+    % wrist using the z axis unit vector of wrist
+    R03 = rotation_of_wrist(q_sorted(1,:));
+    wrist_z_axis = [R03(1,3), R03(2,3), R03(3,3)];
+    normal_wrist_xyplane = wrist_z_axis/norm(wrist_z_axis);
+
+    %projecting y axis of e_desired onto wrist x-y plane
+    e_desired_yaxis_unitvector = [r12,r22,r32];
+    e_desired_yaxis_unitvector_proj_on_normal = dot(e_desired_yaxis_unitvector,normal_wrist_xyplane)*normal_wrist_xyplane;
+
+    %we now get the y axis of the e_possible  = projection of e_desired on wrist x-y plane
+    e_possible_yaxis_vector = e_desired_yaxis_unitvector-e_desired_yaxis_unitvector_proj_on_normal;
+    e_possible_yaxis_norm = e_possible_yaxis_vector/norm(e_possible_yaxis_vector); % normalizing y axis of e_possible
+
+    %x-axis of e_possible will be the cross product of y axis and z axis
+    e_possible_xaxis_vector = cross(e_possible_yaxis_norm,e_possible_zaxis_norm);
+    e_possible_xaxis_norm = e_possible_xaxis_vector/norm(e_possible_xaxis_vector);
+
+
+    %Building the T^0e, the transformation matrix of e possible
+    % this matrix contain the the x,y z axis unit normal vectorx and the position of e_possible
+    T0epossible = [transpose(e_possible_xaxis_norm), transpose(e_possible_yaxis_norm), transpose(e_possible_zaxis_norm), transpose(e_possible)];
+    T0epossible = [T0epossible ;[0 0 0 1]];
+    
+    q_possible = gen_theta4_5(T0epossible, q_sorted(1,1), q_sorted(1,2),q_sorted(1,3), L);
+    
+    %Adding q_possible to list of q calculated
+    q_sorted = [q_possible];
+
+
+end
+
+%Correcting q1 if x = y = 0 or infinite q1 possible
+if x==0 && y ==0
+    for i =1:size(q_sorted,1)
+        q_sorted(i,1) = NaN;
+    end
+end
 
 
 
@@ -255,8 +300,18 @@ function distance = get_distance(q, e)
     distance = norm(e_reach-e,2);
 end
 
+function [R03_] = rotation_of_wrist(q)
+    T01_ = DHParam(0, -pi/2, L(1), q(1));
+    T12_ = DHParam(L(2), 0, 0, q(2)-pi/2);
+    T23_ = DHParam(L(3), 0, 0, q(3)+pi/2);
+    
+    T03_ = T01_ * T12_ * T23_;
+    R03_ = T03_(1:3, 1:3);
+end    
+        
+
 q = q_sorted;
-isPos
+isPos;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
