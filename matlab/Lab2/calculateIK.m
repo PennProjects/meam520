@@ -217,16 +217,16 @@ if feasibility_check ~=0 && size(q_reduced,1) > 0
 
     %we now get the z axis of the e_possible  = projection of e_desired on robot plane
     e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_proj_on_normal;
-    e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector); % normalizing z axis of e_possible
+    e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector) % normalizing z axis of e_possible
 
 
-    %To find projection of y axis of e_desired onto wrist's X-Y plane
-    %the z axis of the wrist's rotation matrix R03 will be the normal to the X-Y plane of the wrist
-    % We will project the y axis of the e_desired onto the X-Y plane of the
-    % wrist using the z axis unit vector of wrist
+    %To find projection of y axis of e_desired onto X-Y plane perpendicular to the robot plane
+    %the x axis of the wrist's rotation matrix R03 will be the normal to perpendicular plane
+    % We will project the y axis of the e_desired onto the this plane of
+    % the wrist using the x axis unit vector of wrist
     R03 = rotation_of_wrist(q_sorted(1,:));
-    wrist_z_axis = [R03(1,3), R03(2,3), R03(3,3)];
-    normal_wrist_xyplane = wrist_z_axis/norm(wrist_z_axis);
+    wrist_x_axis = [R03(1,1), R03(2,1), R03(3,1)];
+    normal_wrist_xyplane = wrist_x_axis/norm(wrist_x_axis);
 
     %projecting y axis of e_desired onto wrist x-y plane
     e_desired_yaxis_unitvector = [r12,r22,r32];
@@ -234,11 +234,11 @@ if feasibility_check ~=0 && size(q_reduced,1) > 0
 
     %we now get the y axis of the e_possible  = projection of e_desired on wrist x-y plane
     e_possible_yaxis_vector = e_desired_yaxis_unitvector-e_desired_yaxis_unitvector_proj_on_normal;
-    e_possible_yaxis_norm = e_possible_yaxis_vector/norm(e_possible_yaxis_vector); % normalizing y axis of e_possible
+    e_possible_yaxis_norm = e_possible_yaxis_vector/norm(e_possible_yaxis_vector) % normalizing y axis of e_possible
 
     %x-axis of e_possible will be the cross product of y axis and z axis
     e_possible_xaxis_vector = cross(e_possible_yaxis_norm,e_possible_zaxis_norm);
-    e_possible_xaxis_norm = e_possible_xaxis_vector/norm(e_possible_xaxis_vector);
+    e_possible_xaxis_norm = e_possible_xaxis_vector/norm(e_possible_xaxis_vector)
 
 
     %Building the T^0e, the transformation matrix of e possible
