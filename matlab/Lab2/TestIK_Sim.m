@@ -35,7 +35,6 @@ T0e = [   0.9103   -0.0000    0.4139  238.6753 ; 0.0000   -1.0000   -0.0000   -0
 
 [q, isPos] = calculateIK(T0e);
 if ~isempty(q)
-%     con = add_command(con,[q(1,:), 10]);
     con = add_command(con,[q(1,:), 10]);
     disp("Now the current state value is : ...");
     disp(con.cur_state);
