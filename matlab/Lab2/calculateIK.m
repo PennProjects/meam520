@@ -188,7 +188,7 @@ end
 %Now we get the rotation matrix of e_possible
 %zaxis of the e_desired is projected onto the robot plane
 e_desired_zaxis_unitvector = [r13,r23,r33]; %As given in T0e
-e_desired_zaxis_unitvector_proj_on_normal = dot(e_desired_zaxis_unitvector,normal_vec)*normal_vec;
+e_desired_zaxis_unitvector_proj_on_normal = dot(e_desired_zaxis_unitvector,normal_robot_plane)*normal_robot_plane;
 %we now get the z axis of the e_possible  = projection of e_desired on robot plane
 e_possible_zaxis_vector = e_desired_zaxis_unitvector-e_desired_zaxis_unitvector_proj_on_normal;
 e_possible_zaxis_norm = e_possible_zaxis_vector/norm(e_possible_zaxis_vector); % normalizing z axis of e_possible
