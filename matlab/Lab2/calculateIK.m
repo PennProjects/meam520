@@ -243,9 +243,16 @@ if feasibility_check ~=0 && size(q_reduced,1) > 0
     q_possible = gen_theta4_5(T0epossible, q_sorted(1,1), q_sorted(1,2),q_sorted(1,3), L);
     
     %Adding q_possible to list of q calculated
-    q_sorted = [q_possible;q_sorted];
+    q_sorted = [q_possible];
 
 
+end
+
+%Correcting q1 if x = y = 0 or infinite q1 possible
+if x==0 && y ==0
+    for i =1:size(q_sorted,1)
+        q_sorted(i,1) = NaN;
+    end
 end
 
 
@@ -298,7 +305,7 @@ end
         
 
 q = q_sorted;
-isPos
+isPos;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
