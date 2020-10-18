@@ -79,26 +79,23 @@ bl = [];
 %    end
 % end 
 
-
+elements = 12;
+% q_test = zeros(elements,3);
 for th1 = -1.4 : 0.2 :1.4
-   for th2 = -1.2 :0.3 : 1.4
-        for th3 = -1.8 : 0.2 : 1.7
+   for th2 = -1.2 :0.1 : 1.4
+        for th3 = -1.8 : 0.1 : 1.7
              q1 = [th1,th2,th3,0,0,0];
     
 
                 q = q1;
                 w_1= calc_wrist_pos(a1,q);
-
-                q_test_1 = angle_ik(a1, w_1, 1);
-                q_test_2 = angle_ik(a1, w_1, 2);
-                q_test_3 = angle_ik(a1, w_1, 3);
-                q_test_4 = angle_ik(a1, w_1, 4);
-                q_test_5 = angle_ik(a1, w_1, 5);
-                q_test_6 = angle_ik(a1, w_1, 6);
-                q_test_7 = angle_ik(a1, w_1, 7);
-                q_test_8 = angle_ik(a1, w_1, 8);
-                q_test_con = [q_test_con;q(:,1:3),bl,q_test_1,q_test_2, q_test_3, q_test_4, q_test_5, q_test_6, q_test_7,q_test_8];
                 
+                q_test = [];
+                for i = 1:elements
+                    q_test = [q_test,angle_ik(a1, w_1, i)];
+                end
+                
+                q_test_con = [q_test_con;q(:,1:3), q_test];                
                 
         end
    end
@@ -106,11 +103,15 @@ end
 
 q_test_con = round(q_test_con, 5);
 
-q_test_con(:,28) =  ((q_test_con(:,1)==q_test_con(:,4))+ (q_test_con(:,1)==q_test_con(:,7)) + (q_test_con(:,1)==q_test_con(:,10)) + (q_test_con(:,1)==q_test_con(:,13)) + (q_test_con(:,1)==q_test_con(:,16)) + (q_test_con(:,1)==q_test_con(:,19)) + (q_test_con(:,1)==q_test_con(:,22)) + (q_test_con(:,1)==q_test_con(:,25)));
-q_test_con(:,29) = ((q_test_con(:,2)==q_test_con(:,5)) + (q_test_con(:,2)==q_test_con(:,8)) + (q_test_con(:,2)==q_test_con(:,11)) + (q_test_con(:,2)==q_test_con(:,14)) + (q_test_con(:,2)==q_test_con(:,17)) + (q_test_con(:,2)==q_test_con(:,20)) + (q_test_con(:,2)==q_test_con(:,23)) + (q_test_con(:,2)==q_test_con(:,26))) ;
-q_test_con(:,30) = ((q_test_con(:,3)==q_test_con(:,6)) + (q_test_con(:,3)==q_test_con(:,9)) + (q_test_con(:,3)==q_test_con(:,12)) + (q_test_con(:,3)==q_test_con(:,15)) + (q_test_con(:,3)==q_test_con(:,18)) + (q_test_con(:,3)==q_test_con(:,21)) + (q_test_con(:,3)==q_test_con(:,24)) + (q_test_con(:,3)==q_test_con(:,27)));
 
-q_notfound = [sum(q_test_con(:,28)==0),sum(q_test_con(:,29)==0), sum(q_test_con(:,30)==0), size(q_test_con, 1)];
+q_test_con = [q_test_con, zeros(size(q_test_con,1),1), zeros(size(q_test_con,1),1), zeros(size(q_test_con,1),1)];
+for i = 1:elements
+   q_test_con(:,3*(elements+1)+1)= q_test_con(:,3*(elements+1)+1)+(q_test_con(:,1)==q_test_con(:,1+3*i));
+   q_test_con(:,3*(elements+1)+2)= q_test_con(:,3*(elements+1)+2)+(q_test_con(:,2)==q_test_con(:,2+3*i));
+   q_test_con(:,3*(elements+1)+3)= q_test_con(:,3*(elements+1)+3)+(q_test_con(:,3)==q_test_con(:,3+3*i));   
+end
+
+q_notfound = [sum(q_test_con(:,3*(elements+1)+1)==0),sum(q_test_con(:,3*(elements+1)+2)==0), sum(q_test_con(:,3*(elements+1)+3)==0), size(q_test_con, 1)];
 
 q_theta2 = [];
 q_theta1 = [];
@@ -118,7 +119,6 @@ for i = 1:9
     q_theta2 = [q_theta2, q_test_con(:,-1+3*i)];
     q_theta1 = [q_theta1, q_test_con(:,3*i)];
 end
-
 
 %single value test1
 % q1 = [0, 1.7, -1.5, 0,0,0]
@@ -155,7 +155,9 @@ upperLim = [ 1.4,  1.4,  1.7,  1.7,  1.5,  30]; % Upper joint limits in radians 
     end
    
  q1_a = [];
- for i=1: 8
+ 
+ elements = 12;
+ for i=1:elements
     if i ==1
         q1_a(i) = q1;
     elseif i ==2;
@@ -178,6 +180,7 @@ gamma = acos((a2^2 + a3^2 - x_c^2 - y_c^2 - (z_c-d1)^2) / (2*a2*a3));
 %2 values for elbow up and elbow dowm orientation
 q3_a(1) = pi/2-gamma;
 q3_a(2) = gamma-3*pi/2 ;
+q3_a(3)  = pi/2+gamma;
 
 
 
@@ -188,27 +191,37 @@ q3_a(2) = gamma-3*pi/2 ;
 % We later discard the incorrect/out of range values
 q2_a(1) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
 q2_a(2) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
-q2_a(3) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+% q2_a(3) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
+q2_a(3) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
 q2_a(4) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(1)),(a2-a3*sin(q3_a(1))));
 
-% % q2_a(5) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
-% % q2_a(6) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
-% % q2_a(7) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
-% % q2_a(8) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(5) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(6) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(7) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
+q2_a(8) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(2)),(a2-a3*sin(q3_a(2))));
 
-q2_a(5) = q2_a(1);
-q2_a(6) = q2_a(1);
-q2_a(7) = q2_a(1);
-q2_a(8) = q2_a(1);
+q2_a(9) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(3)),(a2-a3*sin(q3_a(3))));
+q2_a(10) = pi/2-atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(3)),(a2-a3*sin(q3_a(3))));
+q2_a(11) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))-atan2(a3*cos(q3_a(3)),(a2-a3*sin(q3_a(3))));
+q2_a(12) = -pi/2+atan2((z_c-d1), sqrt(x_c^2+y_c^2))+atan2(a3*cos(q3_a(3)),(a2-a3*sin(q3_a(3))));
+
+
+
+% 
+% q2_a(1) = 0;
+% q2_a(5) = 0;
+% q2_a(9) = 0;
 
 
 %Constructing q3 vector to match the size of q2 vector
 q3_b = [];
-for i=1: 8
-    if i == 1 || i ==4
+for i=1:elements
+    if i <= 4 
         q3_b(i) = q3_a(1);
-    elseif i ==2 || i == 3
+    elseif i >4 && i <=8
         q3_b(i) = q3_a(2);
+    elseif i >8 && i<=12
+        q3_b(i) = q3_a(3);
     else
         q3_b(i) = 0;
     end    
