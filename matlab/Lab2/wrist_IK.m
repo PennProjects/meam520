@@ -16,7 +16,8 @@ theta_sets = 36;
 q_test_con = [];
 
 
-for th1 = -1.4 : 0.2 :1.4
+% for th1 = -1.4 : 0.2 :1.4
+ for th1 = 0 : 1 :0
    for th2 = -1.2 :0.2 : 1.4
         for th3 = -1.8 : 0.2 : 1.7
              q1 = [th1,th2,th3,0,0,0];
