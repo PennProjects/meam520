@@ -14,23 +14,24 @@ theta_sets = 36;
 
 %Looping through all qs in range to verify IK
 q_test_con = [];
+w_concat = [];
 
 
 % for th1 = -1.4 : 0.2 :1.4
  for th1 = 0 : 1 :0
    for th2 = -1.2 :0.2 : 1.4
         for th3 = -1.8 : 0.2 : 1.7
-             q1 = [th1,th2,th3,0,0,0];
+             q_in = [th1,th2,th3,0,0,0];
     
-                q = q1;
-                w_1= calc_wrist_pos(a1,q);
+                w_c= calc_wrist_pos(a1,q_in);
+                w_concat = [w_concat;transpose(w_c)];
                 
                 q_test = [];
                 for i = 1:theta_sets
-                    q_test = [q_test,angle_ik(a1, w_1, i)];
+                    q_test = [q_test,angle_ik(a1, w_c, i)];
                 end
                 
-                q_test_con = [q_test_con;q(:,1:3), q_test];                
+                q_test_con = [q_test_con;q_in(:,1:3), q_test];                
                 
         end
    end
@@ -47,8 +48,29 @@ for i = 1:theta_sets
 end
 
 % caulating numbers of inputs for which the IK did not match the input
-q_notfound = [sum(q_test_con(:,3*(theta_sets+1)+1)==0),sum(q_test_con(:,3*(theta_sets+1)+2)==0), sum(q_test_con(:,3*(theta_sets+1)+3)==0), size(q_test_con, 1)];
-q_found_percentage = 100*[((q_notfound(4)-q_notfound(1))/q_notfound(4)), ((q_notfound(4)-q_notfound(2))/q_notfound(4)), ((q_notfound(4)-q_notfound(3))/q_notfound(4))]
+q_notfound = [sum(q_test_con(:,3*(theta_sets+1)+1)==0),sum(q_test_con(:,3*(theta_sets+1)+2)==0), sum(q_test_con(:,3*(theta_sets+1)+3)==0)];
+total_points = size(q_test_con, 1);
+q_found_percentage = 100*[((total_points-q_notfound(1))/total_points), ((total_points-q_notfound(2))/total_points), ((total_points-q_notfound(3))/total_points)]
+
+
+
+
+%Plotting success and fail
+for i = 1:size(q_test_con,1)
+    
+    if(q_test_con(i,3*(theta_sets+1)+2)==0)
+        plot3(w_concat(i, 1), w_concat(i, 2), w_concat(i, 3), 'o', 'color','#B80F0A' );
+    else
+        plot3(w_concat(i, 1), w_concat(i, 2), w_concat(i, 3), 'o', 'color' ,'#2E8B57' );
+    end
+    grid on;
+    hold on;
+end
+
+title('Verifying Wrist IK','FontSize', 30, 'FontWeight', 'bold')
+xlabel('Xo', 'FontSize', 20, 'FontWeight', 'bold')
+ylabel('Yo', 'FontSize', 20, 'FontWeight', 'bold')
+zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold')
 
 
 
