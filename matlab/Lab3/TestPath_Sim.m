@@ -22,7 +22,7 @@ pause(1) % wait for setup
 collision = false;
 lynx.set_pos([0 0 0 0 0 0])
 pause(10)
-
+path
 % iterate over target waypoints
 for target_index = 1:length(path(:,1))
     q = path(target_index, :);
@@ -30,7 +30,7 @@ for target_index = 1:length(path(:,1))
     disp(q)
     lynx.set_pos(q)
     reached_target = false;
-
+    e = 0.001;
     % Define relevant variables here:
 
     while ~reached_target
@@ -42,14 +42,13 @@ for target_index = 1:length(path(:,1))
         % target or continue to wait. Do NOT add additional pauses to control
         % loop. You will likely want to use lynx.get_state() to decide when to
         % move to the next target.
-        [pos, vel] = lynx.get_state()
-         if pos == q
+        [pos, vel] = lynx.get_state();
+         if abs(pos(1)- q(1)) <=e && abs(pos(2)-q(2)) <= e && abs(pos(3)-q(3))<=e
              reached_target = true;
          else
              lynx.set_pos(q)
          end
-          %reached_target = true;
-          
+         
         % End of student code
     end
     % End control loop

@@ -33,7 +33,7 @@ total_iterations = 3;
 
 for i = 1:total_iterations
     % assume we have a new point
-    q_new = [q_init(1)*rand(1) q_init(2)*rand(1) q_init(3)*rand(1) q_init(4)*rand(1) q_init(5)*rand(1) q_init(6)*rand(1)];
+    q_new = [q_init(1)*rand(1) q_init(2)*rand(1) q_init(3)*rand(1) start(4) start(5) start(6)];
     
     isCollided = checkCollision(q_new); 
       
