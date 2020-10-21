@@ -166,7 +166,7 @@ end
 
 path = getPath(map, start, goal, world.parent);
 path = [path,zeros(size(path,1),3)];
-path = [fullStart;path;fullGoal];
+path = [fullStart;path;fullGoal]
 
 % plot_path(map, path);
 
