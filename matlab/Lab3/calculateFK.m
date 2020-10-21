@@ -1,4 +1,4 @@
-function [jointPositions,T0e,numRunsEnd] = calculateFK(q)
+function [jointPositions,T0e] = calculateFK(q)
 % CALCULATEFK This function calculates the forward kinematics for the
 %   Lynx manipulator arm. 
 %
