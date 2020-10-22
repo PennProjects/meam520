@@ -31,48 +31,46 @@ robot.d4 = 34;
 total_iterations = 3;
 
 tree(1).coord = start; 
-tree(1).parent = 0;
+tree(1).parent = -1;
 
-for i = 2:total_iterations
+reachedGoal = checkReachedGoal(start, goal);
+
+while reachedGoal == 0
     % assume we have a new point
     q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
     
     % check whether this random point collides with obstacle
-    isCollided = checkCollision(q_new); 
+    %isCollided = checkCollision(q_new, map); 
       
-    if isCollided
-        continue;
-    end
-    
+%     if isCollided
+%         continue;
+%     end
+%     
     % find q_a that is closest node in T_start
-    closest_dist = Inf;
-    for j  = 1:i
-        tmp_dist =  sqrt((curr_q(1) - tree(j).q(1))^2 + (curr_q(1) - tree(j).q(2))^2 + (curr_q(1) - tree(j).q(3))^2);
-        if closest_dist < tmp_dist
-            closest_dist = tmp_dist; 
-            closest_node = j;
-            q_a = tree(j).q;
-        end
+    dist_array = [];
+    size_tree = size(tree, 2);
+    for idx = 1:size_tree
+        dist_array = [dist_array; sqrt(sum((q_new - tree(idx).coord).^2))];
     end
-    
-    % find q_a' that is interpolated points between q_a and q_new
-    q_a_dash = interpolate(q_new, q_a);
-    
-    % or move towards that q_new position by some delta and set it q_a_dash
+    [min_dist, min_dist_idx] = min(dist_array);
     
     
-    % if not collide(q, q_a') -> add (q, q_a') to T_start
     
+    closest_q = tree(min_dist_idx).coord;
     
-    if isCollided == 0
-        tree(i).coord = q_new;
-        tree(i).parent = closest_node;
+    [start_points, end_points] = collision_check_points(q_new, closest_q); 
+    [isCollided] = checkCollision(start_points, end_points, map); 
+    if isCollided
+        continue
+    else
+        tree(size_tree+1).parent = min_dist_idx;
+        tree(size_tree+1).coord = q_new; 
     end
     
     reachedGoal = checkReachedGoal(q_new, goal);
     if reachedGoal
         path = [];
-        tree_node_num = i;
+        tree_node_num = size_tree;
         while(tree_node_num ~= -1)
             path = [path; tree(tree_node_num)];
             tree_node_num = tree_node(tree_node_num).parent;
@@ -80,6 +78,30 @@ for i = 2:total_iterations
         break
     end
     
+    
+    
+%     
+%     for j  = 1:size(tree
+%         tmp_dist =  sqrt((q_new(1) - tree(j).coord(1))^2 + (q_new(2) - tree(j).coord(2))^2 + (q_new(3) - tree(j).coord(3))^2);
+%         if closest_dist < tmp_dist
+%             closest_dist = tmp_dist; 
+%             closest_node = j;
+%             q_a = tree(j).q;
+%         end
+%     end
+    
+    % or move towards that q_new position by some delta and set it q_a_dash
+    
+    
+    % if not collide(q, q_a') -> add (q, q_a') to T_start
+    
+    
+%     if isCollided == 0
+%         tree(i).coord = q_new;
+%         tree(i).parent = closest_q;
+%     end
+    
+   
 end
 
 % path = [pi/4 0 0 0 0 0; -pi/4 0 0 0 0 0];
@@ -91,7 +113,23 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%                  Algortihm Ends Here               %%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function [start_points, end_points] = collision_check_points(p1,p2);
+        [jointPositions_p1,~] = calculateFK(p1);
+        [jointPositions_p2,~] = calculateFK(p2);
+
+
+        robot_at_p1 = [jointPositions_p1(1:5,:), jointPositions_p1(2:6,:)];
+        robot_at_p2 = [jointPositions_p2(1:5,:), jointPositions_p2(2:6,:)];
+
+        concat_points = [robot_at_p1;robot_at_p2];
+
+        start_points = [concat_points(:,1:3)];
+        end_points = [concat_points(:,4:6)];
+
+    end
+
     function [reachedGoal] = checkReachedGoal(q_new, goal)
         if q_new(1) == goal(1) && q_new(2) == goal(2) && q_new(3) == goal(3) 
             reachedGoal = 1;
@@ -99,24 +137,10 @@ end
             reachedGoal = 0;
         end
     end
-    
-    function [q_a_dash] = interpolate( q_new, q_a)
-        q_a_dash = [];
-        for i=1:5
-            q1 = ;
-            q2 = ;
-            q3 = ;
-            q_a_dash = [q_a_dash; q1 q2 q3];
-        end
-            
-    end
 
-    function [isCollided] = checkCollision(q_new)
+    function [isCollided] = checkCollision(start_pts, end_pts, map)
         % For each obstacle in the space
         mrgn = 25; 
-        [jointPositions,T0e] = calculateFK(q_new); 
-        linePt1 = jointPositions(1:5, :);
-        linePt2 = jointPositions(2:6, :);
         
         for ii=1:size(map.obstacles)
             % Pad the obstacle
@@ -124,7 +148,7 @@ end
 
             % Check for collisions with all the lines, which is a check for all
             % links of the robot.
-            isCollided = detectCollision(linePt1, linePt2,currObstacle);
+            isCollided = detectCollision(start_pts, end_pts,currObstacle);
             
         end
 

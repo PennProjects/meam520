@@ -38,7 +38,7 @@ for i = 2:total_iterations
     q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
     
     % check whether this random point collides with obstacle
-    isCollided = checkCollision(q_new); 
+    isCollided = checkCollision(q_new, map); 
       
     if isCollided
         continue;
@@ -47,15 +47,16 @@ for i = 2:total_iterations
     % find q_a that is closest node in T_start
     closest_dist = Inf;
     for j  = 1:i
-        tmp_dist =  sqrt((curr_q(1) - tree(j).q(1))^2 + (curr_q(1) - tree(j).q(2))^2 + (curr_q(1) - tree(j).q(3))^2);
+        tmp_dist =  sqrt((q_new(1) - tree(j).coord(1))^2 + (q_new(2) - tree(j).coord(2))^2 + (q_new(3) - tree(j).coord(3))^2);
         if closest_dist < tmp_dist
             closest_dist = tmp_dist; 
             closest_node = j;
-            q_closest = tree(j).q;
+            q_a = tree(j).q;
         end
     end
     
-    % check collision between q_new and q_closest 
+    % or move towards that q_new position by some delta and set it q_a_dash
+    
     
     % if not collide(q, q_a') -> add (q, q_a') to T_start
     
@@ -95,9 +96,8 @@ end
             reachedGoal = 0;
         end
     end
-    
 
-    function [isCollided] = checkCollision(q_new)
+    function [isCollided] = checkCollision(q_new, map)
         % For each obstacle in the space
         mrgn = 25; 
         [jointPositions,T0e] = calculateFK(q_new); 
