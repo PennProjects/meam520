@@ -51,11 +51,15 @@ for i = 2:total_iterations
         if closest_dist < tmp_dist
             closest_dist = tmp_dist; 
             closest_node = j;
-            q_closest = tree(j).q;
+            q_a = tree(j).q;
         end
     end
     
-    % check collision between q_new and q_closest 
+    % find q_a' that is interpolated points between q_a and q_new
+    q_a_dash = interpolate(q_new, q_a);
+    
+    % or move towards that q_new position by some delta and set it q_a_dash
+    
     
     % if not collide(q, q_a') -> add (q, q_a') to T_start
     
@@ -96,6 +100,16 @@ end
         end
     end
     
+    function [q_a_dash] = interpolate( q_new, q_a)
+        q_a_dash = [];
+        for i=1:5
+            q1 = ;
+            q2 = ;
+            q3 = ;
+            q_a_dash = [q_a_dash; q1 q2 q3];
+        end
+            
+    end
 
     function [isCollided] = checkCollision(q_new)
         % For each obstacle in the space
