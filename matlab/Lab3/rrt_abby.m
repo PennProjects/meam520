@@ -32,13 +32,13 @@ total_iterations = 3;
 
 tree(1).coord = start; 
 tree(1).parent = -1;
-
-reachedGoal = checkReachedGoal(start, goal);
+epsilon = 0.01;
+reachedGoal = checkReachedGoal(start, goal, epsilon);
 
 while reachedGoal == 0
     % assume we have a new point
-    q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
-    
+    %q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
+    q_new = [0 0 2*rand(1) 0 0 0]
     % check whether this random point collides with obstacle
     %isCollided = checkCollision(q_new, map); 
       
@@ -64,16 +64,18 @@ while reachedGoal == 0
         continue
     else
         tree(size_tree+1).parent = min_dist_idx;
-        tree(size_tree+1).coord = q_new; 
+        tree(size_tree+1).coord = q_new;
     end
     
-    reachedGoal = checkReachedGoal(q_new, goal);
+    %plot3(tree(1).coord, 
+    
+    reachedGoal = checkReachedGoal(q_new, goal, epsilon);
     if reachedGoal
-        path = [];
+        path = [goal];
         tree_node_num = size_tree;
         while(tree_node_num ~= -1)
-            path = [path; tree(tree_node_num)];
-            tree_node_num = tree_node(tree_node_num).parent;
+            path = [tree(tree_node_num).coord; path];
+            tree_node_num = tree(tree_node_num).parent;
         end
         break
     end
@@ -104,7 +106,7 @@ while reachedGoal == 0
    
 end
 
-% path = [pi/4 0 0 0 0 0; -pi/4 0 0 0 0 0];
+%path = [pi/4 0 0 0 0 0; -pi/4 0 0 0 0 0; path];
 % % path = [pi/4 pi/4 pi/4 pi/4 pi/4 pi/4; 
 % %         -pi/4 -pi/4 pi/4 pi/4 pi/4 pi/4;]
 % path = [start; path];
@@ -115,7 +117,7 @@ end
 %%%                  Algortihm Ends Here               %%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    function [start_points, end_points] = collision_check_points(p1,p2);
+    function [start_points, end_points] = collision_check_points(p1,p2)
         [jointPositions_p1,~] = calculateFK(p1);
         [jointPositions_p2,~] = calculateFK(p2);
 
@@ -130,8 +132,8 @@ end
 
     end
 
-    function [reachedGoal] = checkReachedGoal(q_new, goal)
-        if q_new(1) == goal(1) && q_new(2) == goal(2) && q_new(3) == goal(3) 
+    function [reachedGoal] = checkReachedGoal(q_new, goal, epsilon)
+        if ((abs(q_new(1) - goal(1)) <= epsilon) && (abs(q_new(2) - goal(2)) <= epsilon) && (abs(q_new(3) - goal(3)) <= epsilon)) 
             reachedGoal = 1;
         else
             reachedGoal = 0;
