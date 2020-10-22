@@ -38,8 +38,8 @@ reachedGoal = checkReachedGoal(start, goal, epsilon);
 
 while reachedGoal == 0
     % assume we have a new point
-    temp_lowerlimit = min(start, goal);
-    temp_upperlimit = max(start,goal);
+    temp_lowerlimit = min(start, goal)-epsilon;
+    temp_upperlimit = max(start,goal)+epsilon;
     
     random_array = rand(1,6);
     random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;

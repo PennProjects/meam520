@@ -6,8 +6,8 @@ addpath('../Core')
 
 %% Simulation Parameters
 
-start = [0,pi/4,0,0,0,0];
-goal = [0,-pi/4,0,0,0,0];
+start = [-pi/4,-pi/4,0,0,0,0];
+goal = [1.2,1,0,0,0,0];
 
 map = loadmap('map2.txt');
 
@@ -44,7 +44,7 @@ for target_index = 1:length(path(:,1))
         % loop. You will likely want to use lynx.get_state() to decide when to
         % move to the next target.
         count = count + 1;
-        if count > 10
+        if count > 20
             reached_target = true;
             count = 0;
         end
