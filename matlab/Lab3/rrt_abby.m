@@ -133,7 +133,30 @@ while reachedGoal == 0
     end
     
     %%%%%%%
+        
+    %For live tree plot
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    branch = [tree(min_dist_idx).coord; tree(size_tree).coord];
+    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#B80F0A')
+    hold on
+    drawnow
+    plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
+    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#B80F0A')
     
+    branch_end = [tree_end(min_dist_idx_end).coord; tree_end(size_tree_end).coord];
+    plot3(branch_end(:,1), branch_end(:,2), branch_end(:,3) ,'o-', 'color', '#B80F0A')
+    
+    
+    
+    % Plot view configuration
+    grid on
+    title('Lynx robot configitarion space','FontSize', 30, 'FontWeight', 'bold')
+    xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
+    ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
+    zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %reachedGoal = checkReachedGoal(q_new, goal, epsilon);
     if num_added_tree == 2
         path_from_start = [];
