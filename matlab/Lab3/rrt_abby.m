@@ -90,6 +90,7 @@ while reachedGoal == 0
         tree(size_tree+1).coord = q_new;
         %%%
         num_added_tree = num_added_tree + 1;
+        size_tree = size(tree, 2);
         %%%
     end
     
@@ -128,6 +129,7 @@ while reachedGoal == 0
         tree_end(size_tree_end+1).parent = min_dist_idx_end;
         tree_end(size_tree_end+1).coord = q_new;
         num_added_tree = num_added_tree + 1;
+        size_tree_end = size(tree_end, 2);
     end
     
     %%%%%%%
@@ -143,16 +145,18 @@ while reachedGoal == 0
             path_from_start = [tree(tree_node_num).coord; path_from_start];
             tree_node_num = tree(tree_node_num).parent;
         end
-        
+        first = 0;
         tree_node_num_end = size_tree_end;
         while(tree_node_num_end ~= -1)
-            path_from_goal = [path_from_goal, tree_end(tree_node_num_end).coord];
+            if first == 0
+                first = first + 1;
+                tree_node_num_end = tree_end(tree_node_num_end).parent;
+                continue
+            end
+            path_from_goal = [path_from_goal; tree_end(tree_node_num_end).coord];
             tree_node_num_end = tree_end(tree_node_num_end).parent;
         end
-        tree
-        tree_end
-        path_from_start
-        path_from_goal
+       
         path = [path_from_start; path_from_goal];
         break
     end
