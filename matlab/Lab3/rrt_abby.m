@@ -34,11 +34,19 @@ tree(1).coord = start;
 tree(1).parent = -1;
 epsilon = 0.01;
 reachedGoal = checkReachedGoal(start, goal, epsilon);
+alpha = 10;
 
 while reachedGoal == 0
     % assume we have a new point
-    %q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
-    q_new = [0 0 2*rand(1) 0 0 0]
+    temp_lowerlimit = min(start, goal)-epsilon;
+    temp_upperlimit = max(start,goal)+epsilon;
+    
+    random_array = rand(1,6);
+    random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;
+%     random_angles = robot.lowerLim + (robot.upperLim-robot.lowerLim).*random_array; 
+    q_new = [random_angles(1) random_angles(2) 0 start(4) start(5) start(6)];
+%     q_new = [rand(1) rand(1) 0 0 0 0]
+
     % check whether this random point collides with obstacle
     %isCollided = checkCollision(q_new, map); 
       
@@ -54,13 +62,29 @@ while reachedGoal == 0
     end
     [min_dist, min_dist_idx] = min(dist_array);
     
-    
-    
     closest_q = tree(min_dist_idx).coord;
     
     [start_points, end_points] = collision_check_points(q_new, closest_q); 
     [isCollided] = checkCollision(start_points, end_points, map); 
-    if isCollided
+    
+    % check collision for points inbetween closest_q, q_new 
+    % (interpolation in configuration space) 
+    [between_start, between_end] = generate_points_inbetween(closest_q, q_new, alpha);
+    
+    
+    between_start_points = [];
+    between_end_points = []; 
+    for num = 1:size(between_start, 1)
+        [between_start_point, between_end_point] = collision_check_points(between_start(num, :), between_end(num, :)); 
+        between_start_points = [between_start_points; between_start_point]; 
+        between_end_points = [between_end_points; between_end_point];
+    end
+    
+    [isCollided2] = checkCollision(between_start_points, between_end_points, map); 
+    
+    if isCollided 
+        continue
+    elseif isCollided2
         continue
     else
         tree(size_tree+1).parent = min_dist_idx;
@@ -117,6 +141,23 @@ end
 %%%                  Algortihm Ends Here               %%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function [start_points, end_points] = generate_points_inbetween(p1, p2, alpha)
+        start_points = [];
+        end_points = [];
+        % distance between 2 points 
+        dist = norm(p2-p1); 
+        normalized_dist = dist / sqrt(numel(p2));
+        ratio = dist / normalized_dist;
+        num_points = alpha * ratio; 
+        
+        for i = 1:num_points
+            tmp = p1 + i*(p2 - p1)/num_points;
+            prev_tmp = p1 + (i-1)*(p2 - p1)/num_points;
+            start_points = [start_points; prev_tmp]; 
+            end_points = [end_points; tmp];
+        end
+    end
+
     function [start_points, end_points] = collision_check_points(p1,p2)
         [jointPositions_p1,~] = calculateFK(p1);
         [jointPositions_p2,~] = calculateFK(p2);
