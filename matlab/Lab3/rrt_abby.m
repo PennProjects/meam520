@@ -32,29 +32,29 @@ total_iterations = 3;
 
 tree(1).coord = start; 
 tree(1).parent = -1;
+
+%%%%%%%%%
+tree_end(1).coord = goal;
+tree_end(1).parent = -1; 
+%%%%%%%%%
+
 epsilon = 0.01;
 reachedGoal = checkReachedGoal(start, goal, epsilon);
 alpha = 10;
 
+
 while reachedGoal == 0
+    %%%%
+    num_added_tree = 0; 
+    %%%%
     % assume we have a new point
     temp_lowerlimit = min(start, goal)-epsilon;
     temp_upperlimit = max(start,goal)+epsilon;
     
     random_array = rand(1,6);
     random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;
-%     random_angles = robot.lowerLim + (robot.upperLim-robot.lowerLim).*random_array; 
     q_new = [random_angles(1) random_angles(2) 0 start(4) start(5) start(6)];
-%     q_new = [rand(1) rand(1) 0 0 0 0]
 
-    % check whether this random point collides with obstacle
-    %isCollided = checkCollision(q_new, map); 
-      
-%     if isCollided
-%         continue;
-%     end
-%     
-    % find q_a that is closest node in T_start
     dist_array = [];
     size_tree = size(tree, 2);
     for idx = 1:size_tree
@@ -70,7 +70,6 @@ while reachedGoal == 0
     % check collision for points inbetween closest_q, q_new 
     % (interpolation in configuration space) 
     [between_start, between_end] = generate_points_inbetween(closest_q, q_new, alpha);
-    
     
     between_start_points = [];
     between_end_points = []; 
@@ -89,18 +88,72 @@ while reachedGoal == 0
     else
         tree(size_tree+1).parent = min_dist_idx;
         tree(size_tree+1).coord = q_new;
+        %%%
+        num_added_tree = num_added_tree + 1;
+        %%%
     end
     
-    %plot3(tree(1).coord, 
+    %%%%%%% checking for tree_end 
+    dist_array_end = [];
+    size_tree_end = size(tree_end, 2);
+    for idx = 1:size_tree_end
+        dist_array_end = [dist_array_end; sqrt(sum((q_new - tree(idx).coord).^2))];
+    end
+    [min_dist_end, min_dist_idx_end] = min(dist_array_end);
     
-    reachedGoal = checkReachedGoal(q_new, goal, epsilon);
-    if reachedGoal
-        path = [goal];
+    closest_q_end = tree_end(min_dist_idx_end).coord;
+    
+    [start_points_end, end_points_end] = collision_check_points(q_new, closest_q_end); 
+    [isCollided_end] = checkCollision(start_points_end, end_points_end, map); 
+    
+    % check collision for points inbetween closest_q, q_new 
+    % (interpolation in configuration space) 
+    [between_start_end, between_end_end] = generate_points_inbetween(closest_q_end, q_new, alpha);
+    
+    between_start_points_end = [];
+    between_end_points_end = []; 
+    for num = 1:size(between_start_end, 1)
+        [between_start_point_end, between_end_point_end] = collision_check_points(between_start_end(num, :), between_end_end(num, :)); 
+        between_start_points_end = [between_start_points_end; between_start_point_end]; 
+        between_end_points_end = [between_end_points_end; between_end_point_end];
+    end
+    
+    [isCollided2_end] = checkCollision(between_start_points_end, between_end_points_end, map); 
+    
+    if isCollided_end 
+        continue
+    elseif isCollided2_end
+        continue
+    else
+        tree_end(size_tree_end+1).parent = min_dist_idx_end;
+        tree_end(size_tree_end+1).coord = q_new;
+        num_added_tree = num_added_tree + 1;
+    end
+    
+    %%%%%%%
+    
+    %reachedGoal = checkReachedGoal(q_new, goal, epsilon);
+    if num_added_tree == 2
+        path_from_start = [];
+        path_from_goal = []; 
+        
+        %path = [goal];
         tree_node_num = size_tree;
         while(tree_node_num ~= -1)
-            path = [tree(tree_node_num).coord; path];
+            path_from_start = [tree(tree_node_num).coord; path_from_start];
             tree_node_num = tree(tree_node_num).parent;
         end
+        
+        tree_node_num_end = size_tree_end;
+        while(tree_node_num_end ~= -1)
+            path_from_goal = [path_from_goal, tree_end(tree_node_num_end).coord];
+            tree_node_num_end = tree_end(tree_node_num_end).parent;
+        end
+        tree
+        tree_end
+        path_from_start
+        path_from_goal
+        path = [path_from_start; path_from_goal];
         break
     end
     
