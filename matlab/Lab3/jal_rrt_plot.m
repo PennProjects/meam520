@@ -18,7 +18,8 @@ path = [];
 robot.d1 = 76.2;
 robot.a2 = 146.05;
 robot.a3 = 187.325;
-robot.d5 = 68;
+% robot.d5 = 68;
+robot.d5 = 68 + 12.5;
 robot.lg = 35;
 robot.lowerLim = [-1.4000 -1.2000 -1.8000 -1.9000 -2 -15];
 robot.upperLim = [1.4000 1.4000 1.7000 1.7000 1.5000 30];
@@ -34,6 +35,7 @@ tree(1).coord = start;
 tree(1).parent = -1;
 epsilon = 0.01;
 reachedGoal = checkReachedGoal(start, goal, epsilon);
+alpha = 1000;
 
 
 while reachedGoal == 0
@@ -43,8 +45,16 @@ while reachedGoal == 0
     
     random_array = rand(1,6);
     random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;
+    
+    %keeping rand angles within limit
+    %%%%%%%%%%
+    random_angles(random_angles(:) < robot.lowerLim(:)) = robot.lowerLim(random_angles(:) < robot.lowerLim(:));
+    random_angles(random_angles(:) > robot.upperLim(:)) = robot.upperLim(random_angles(:) > robot.upperLim(:));  
+    %%%%%%%%%%
+    
+    
 %     random_angles = robot.lowerLim + (robot.upperLim-robot.lowerLim).*random_array; 
-    q_new = [random_angles(1) random_angles(2) 0 start(4) start(5) start(6)]
+    q_new = [random_angles(1) random_angles(2) random_angles(3) random_angles(4) start(5) start(6)]
 %     q_new = [rand(1) rand(1) 0 0 0 0]
     % check whether this random point collides with obstacle
     %isCollided = checkCollision(q_new, map); 
@@ -67,13 +77,34 @@ while reachedGoal == 0
     
     [start_points, end_points] = collision_check_points(q_new, closest_q); 
     [isCollided] = checkCollision(start_points, end_points, map); 
-    if isCollided
+    
+        % check collision for points inbetween closest_q, q_new 
+    % (interpolation in configuration space) 
+    [between_start, between_end] = generate_points_inbetween(closest_q, q_new, alpha);
+    
+    
+    between_start_points = [];
+    between_end_points = []; 
+    for num = 1:size(between_start, 1)
+        [between_start_point, between_end_point] = collision_check_points(between_start(num, :), between_end(num, :)); 
+        between_start_points = [between_start_points; between_start_point]; 
+        between_end_points = [between_end_points; between_end_point];
+    end
+    
+    [isCollided2] = checkCollision(between_start_points, between_end_points, map); 
+    
+    if isCollided 
+        continue
+    elseif isCollided2
         continue
     else
         tree(size_tree+1).parent = min_dist_idx;
         tree(size_tree+1).coord = q_new;
     end
     
+    
+    %For live tree plot
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     branch = [tree(min_dist_idx).coord; tree(size_tree+1).coord];
     plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#B80F0A')
     hold on
@@ -81,12 +112,17 @@ while reachedGoal == 0
     plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
     plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#B80F0A')
     
+    
     % Plot view configuration
     grid on
     title('Lynx robot configitarion space','FontSize', 30, 'FontWeight', 'bold')
     xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
     
     reachedGoal = checkReachedGoal(q_new, goal, epsilon);
     if reachedGoal
@@ -96,9 +132,13 @@ while reachedGoal == 0
             path = [tree(tree_node_num).coord; path];
             tree_node_num = tree(tree_node_num).parent;
         end
+        
+        %For live tree plot
+        %%%%%%%%%%%%%%%%%%%%%%
         plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#2E8B57')
          plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#2E8B57')
         plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3,'color','#2E8B57')
+        %%%%%%%%%%%%%%%%%%%%%%%%
         break
     end
     
@@ -140,6 +180,30 @@ end
 %%%                  Algortihm Ends Here               %%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      function [start_points, end_points] = generate_points_inbetween(p1, p2, alpha)
+        start_points = [];
+        end_points = [];
+        % distance between 2 points 
+        dist = norm(p2-p1); 
+%         normalized_dist = dist / sqrt(numel(p2));
+        normalized_dist = norm(robot.lowerLim-robot.upperLim);        
+        ratio = dist / normalized_dist;
+        num_points = round(alpha * ratio);
+        if(num_points==0)
+            num_points  = 1;
+        end
+        
+        
+        for i = 1:num_points
+            tmp = p1 + i*(p2 - p1)/num_points;
+            prev_tmp = p1 + (i-1)*(p2 - p1)/num_points;
+            start_points = [start_points; prev_tmp]; 
+            end_points = [end_points; tmp];
+        end
+    end
+    
+    
+    
     function [start_points, end_points] = collision_check_points(p1,p2)
         [jointPositions_p1,~] = calculateFK(p1);
         [jointPositions_p2,~] = calculateFK(p2);
