@@ -75,12 +75,11 @@ while reachedGoal == 0
     end
     
     branch = [tree(min_dist_idx).coord; tree(size_tree+1).coord];
-    plot3(start(1), start(2), start(3), 'o', 'color', '#B80F0A')
+    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#B80F0A')
     hold on
     drawnow
-    plot3(goal(1), goal(2), goal(3),'o', 'color', '#B80F0A')
-%     plot3(tree(size_tree+1).coord(1),tree(size_tree+1).coord(2), tree(size_tree+1).coord(3),'d-', 'color', '#2E8B57')
-    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#2E8B57')
+    plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
+    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#B80F0A')
     
     % Plot view configuration
     grid on
@@ -97,8 +96,12 @@ while reachedGoal == 0
             path = [tree(tree_node_num).coord; path];
             tree_node_num = tree(tree_node_num).parent;
         end
+        plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#2E8B57')
+         plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#2E8B57')
+        plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3,'color','#2E8B57')
         break
     end
+    
     
     
     
