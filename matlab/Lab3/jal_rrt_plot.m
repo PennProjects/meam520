@@ -74,11 +74,13 @@ while reachedGoal == 0
         tree(size_tree+1).coord = q_new;
     end
     
-    plot3(start(1), start(2), start(3), 'o', 'color', 'r')
+    branch = [tree(min_dist_idx).coord; tree(size_tree+1).coord];
+    plot3(start(1), start(2), start(3), 'o', 'color', '#B80F0A')
     hold on
     drawnow
-    plot3(goal(1), goal(2), goal(3),'o', 'color', 'r')
-    plot3(tree(size_tree+1).coord(1),tree(size_tree+1).coord(2), tree(size_tree+1).coord(3),'o', 'color', 'g')
+    plot3(goal(1), goal(2), goal(3),'o', 'color', '#B80F0A')
+%     plot3(tree(size_tree+1).coord(1),tree(size_tree+1).coord(2), tree(size_tree+1).coord(3),'d-', 'color', '#2E8B57')
+    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#2E8B57')
     
     % Plot view configuration
     grid on
