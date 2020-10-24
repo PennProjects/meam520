@@ -60,7 +60,8 @@ while (iteration_count < max_iterations)
     random_angles = robot.lowerLim +  (robot.upperLim-robot.lowerLim).*random_array;
     
     %selecting a new point
-    q_new = [random_angles(1) random_angles(2) random_angles(3) random_angles(4) start(5) start(6)]
+     q_new = [random_angles(1) random_angles(2) random_angles(3) random_angles(4) random_angles(5), start(6)];
+    
 
       
     % finding a point in the tree from start
@@ -144,14 +145,16 @@ while (iteration_count < max_iterations)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     %plot start and goal
-    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', 'b')
+    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#0E4D92')
+    text(start(1), start(2), start(3), 'Start', 'FontSize', 15)
     hold on
     drawnow
     plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
+    text(goal(1), goal(2), goal(3), 'Goal', 'FontSize', 15)
     
     %create a branch and plot from start tree
     branch = [tree(min_dist_idx).coord; tree(size_tree).coord];
-    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#B80F0A')
+    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#0E4D92')
     
     %create branch and plot from goal tree
     branch_goal = [tree_end(min_dist_idx_end).coord; tree_end(size_tree_end).coord];
@@ -159,11 +162,11 @@ while (iteration_count < max_iterations)
     
     % Plot view configuration
     grid on
-    title('Lynx robot configitarion space','FontSize', 30, 'FontWeight', 'bold')
+    title('Lynx robot configuration space','FontSize', 30, 'FontWeight', 'bold')
     xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
-    
+   
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
