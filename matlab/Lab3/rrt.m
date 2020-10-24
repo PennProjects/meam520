@@ -180,7 +180,7 @@ while (iteration_count < max_iterations)
         path_from_goal = []; 
         
         %using the index of parent points build tree from start
-        tree_node_num = size_tree
+        tree_node_num = size_tree;
         while(tree_node_num ~= -1)
             path_from_start = [tree(tree_node_num).coord; path_from_start];
             tree_node_num = tree(tree_node_num).parent;
