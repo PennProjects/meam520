@@ -55,8 +55,10 @@ while (iteration_count < max_iterations)
  
     num_added_tree = 0; 
     
-    %to find a randon point in configuration space
-    random_array = rand(1,6);
+    %to find a randon point in configuration space    
+    random_array = randi([0,1],[1,6]);
+    
+    %adding epsilon to angle 
     random_angles = robot.lowerLim +  (robot.upperLim-robot.lowerLim).*random_array;
     
     %selecting a new point
