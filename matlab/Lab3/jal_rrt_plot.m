@@ -19,6 +19,7 @@ robot.d1 = 76.2;
 robot.a2 = 146.05;
 robot.a3 = 187.325;
 % robot.d5 = 68;
+%get frame centre at tip of gripper
 robot.d5 = 68 + 12.5;
 robot.lg = 35;
 robot.lowerLim = [-1.4000 -1.2000 -1.8000 -1.9000 -2 -15];
@@ -40,15 +41,18 @@ tree_end(1).parent = -1;
 %%%%%%%%%
 
 
-epsilon = 0.01;
+epsilon = 0.0001;
 % reachedGoal = checkReachedGoal(start, goal, epsilon);
 alpha = 1000;
 
 %%%%
     num_added_tree = 0; 
 %%%%
-
-while num_added_tree ~= 2
+max_iterations = 10000;
+ iteration_count = 0;
+while (iteration_count < max_iterations)
+    
+   
     
     %%%%
     num_added_tree = 0; 
@@ -249,7 +253,7 @@ while num_added_tree ~= 2
 %         tree(i).parent = closest_q;
 %     end
     
-   
+  iteration_count  = iteration_count +1; 
 end
 
 %path = [pi/4 0 0 0 0 0; -pi/4 0 0 0 0 0; path];
