@@ -1,4 +1,4 @@
-function [path] = rrt_abby(map, start, goal)
+function [path] = rrt(map, start, goal)
 % RRT Find the shortest path from start to goal.
 %   PATH = rrt(map, start, goal) returns an mx6 matrix, where each row
 %   consists of the configuration of the Lynx at a point on the path. The
@@ -28,81 +28,227 @@ robot.d4 = 34;
 %%%                  Algortihm Starts Here             %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-total_iterations = 3;
-
+% defining a struct 
+%with coord as the point and parent as the index of parent point
+% tree form start point
 tree(1).coord = start; 
 tree(1).parent = 0;
 
-for i = 2:total_iterations
-    % assume we have a new point
-    q_new = [robot.lowerLim(1)*rand(1) robot.lowerLim(2)*rand(1) robot.lowerLim(3)*rand(1) start(4) start(5) start(6)];
+%tree form goal
+tree_end(1).coord = goal;
+tree_end(1).parent = -1; 
+
+%tolerance for comparing angles 
+epsilon = 0.001;
+
+%max number of points to check for collision between 2 points
+number_of_points_to_check= 1000;
+
+%number of trees point is added to
+num_added_tree = 0; 
+
+% max iteration if no path is found
+max_iterations = 100000;
+iteration_count = 0;
+ 
+while (iteration_count < max_iterations)
     
-    % check whether this random point collides with obstacle
-    isCollided = checkCollision(q_new, map); 
+ 
+    num_added_tree = 0; 
+    
+    %to find a randon point in configuration space
+    random_array = rand(1,6);
+    random_angles = robot.lowerLim +  (robot.upperLim-robot.lowerLim).*random_array;
+    
+    %selecting a new point
+    q_new = [random_angles(1) random_angles(2) random_angles(3) random_angles(4) start(5) start(6)]
+
       
-    if isCollided
-        continue;
+    % finding a point in the tree from start
+    %the distance between the point in consideration and every point in the tree is 
+    %calculated and point with the minimum distance is found
+    dist_array = [];
+    size_tree = size(tree, 2);
+    for idx = 1:size_tree
+        dist_array = [dist_array; sqrt(sum((q_new - tree(idx).coord).^2))];
+    end
+    [~, min_dist_idx] = min(dist_array);
+    
+    closest_q = tree(min_dist_idx).coord;
+    
+    %generating points in between the q_new and closest point in tree to check for
+    %collision along line joining q_new and closest point in tree 
+    [points_in_between_start] = generate_points_inbetween(closest_q, q_new, number_of_points_to_check);
+    
+    all_between_robot_joint_start_start = [];
+    all_between_robot_joint_end_start = []; 
+    for num = 1:size(points_in_between_start, 1)
+        [each_point_robot_joint_start_start, each_point_robot_joints_end_start ] = collision_check_points(points_in_between_start(num, :)); 
+        all_between_robot_joint_start_start = [all_between_robot_joint_start_start;each_point_robot_joint_start_start];
+        all_between_robot_joint_end_start = [all_between_robot_joint_end_start;each_point_robot_joints_end_start];
     end
     
-    % find q_a that is closest node in T_start
-    closest_dist = Inf;
-    for j  = 1:i
-        tmp_dist =  sqrt((q_new(1) - tree(j).coord(1))^2 + (q_new(2) - tree(j).coord(2))^2 + (q_new(3) - tree(j).coord(3))^2);
-        if closest_dist < tmp_dist
-            closest_dist = tmp_dist; 
-            closest_node = j;
-            q_a = tree(j).q;
-        end
+    [isCollided2_start] = checkCollision(all_between_robot_joint_start_start, all_between_robot_joint_end_start, map); 
+    
+    % if q_new, and all points sampled in between q_new and closest_qare
+    % collision free add q_new to tree and tag its parent as closest_q
+    if any(isCollided2_start)==0
+        tree(size_tree+1).parent = min_dist_idx;
+        tree(size_tree+1).coord = q_new;
+        num_added_tree = num_added_tree + 1;
+        size_tree = size(tree, 2);
     end
     
-    % or move towards that q_new position by some delta and set it q_a_dash
+    
+    %%%%%%% Repeating the above process for tree from goal%%%%%%%%
     
     
-    % if not collide(q, q_a') -> add (q, q_a') to T_start
+    % finding a point in the tree from goal
+    %the distance between the point in consideration and every point in the tree is 
+    %calculated and point with the minimum distance is found
+    dist_array_end = [];
+    size_tree_end = size(tree_end, 2);
+    for idx = 1:size_tree_end
+        dist_array_end = [dist_array_end; sqrt(sum((q_new - tree_end(idx).coord).^2))];
+    end
+    [~, min_dist_idx_end] = min(dist_array_end);
+    closest_q_goal = tree_end(min_dist_idx_end).coord;
     
+    %generating points in between the q_new and closest point in tree to check for
+    %collision along line joining q_new and closest point in tree 
+    [points_in_between_goal] = generate_points_inbetween(closest_q_goal, q_new, number_of_points_to_check);
     
-    if isCollided == 0
-        tree(i).coord = q_new;
-        tree(i).parent = closest_node;
+    all_between_robot_joint_start_goal = [];
+    all_between_robot_joint_end_goal = []; 
+    for num = 1:size(points_in_between_goal, 1)
+        [each_point_robot_joint_start_goal, each_point_robot_joints_end_goal ] = collision_check_points(points_in_between_goal(num, :)); 
+        all_between_robot_joint_start_goal = [all_between_robot_joint_start_goal;each_point_robot_joint_start_goal];
+        all_between_robot_joint_end_goal = [all_between_robot_joint_end_goal;each_point_robot_joints_end_goal];
+
     end
     
-    reachedGoal = checkReachedGoal(q_new, goal);
-    if reachedGoal
-        path = [];
-        tree_node_num = i;
+    [isCollided2_end] = checkCollision(all_between_robot_joint_start_goal, all_between_robot_joint_end_goal, map); 
+    
+    
+    % if q_new, and all points sampled in between q_new and closest_q_goal are
+    % collision free add q_new to tree and tag its parent as closest_q
+    if any(isCollided2_end)==0
+        tree_end(size_tree_end+1).parent = min_dist_idx_end;
+        tree_end(size_tree_end+1).coord = q_new;
+        num_added_tree = num_added_tree + 1;
+        size_tree_end = size(tree_end, 2);
+    end
+    
+    %%%%%%%Points are now added to the tree%%%%%%%%%%
+        
+    %For live tree plot
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %plot start and goal
+    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', 'b')
+    hold on
+    drawnow
+    plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
+    
+    %create a branch and plot from start tree
+    branch = [tree(min_dist_idx).coord; tree(size_tree).coord];
+    plot3(branch(:,1), branch(:,2), branch(:,3) ,'o-', 'color', '#B80F0A')
+    
+    %create branch and plot from goal tree
+    branch_goal = [tree_end(min_dist_idx_end).coord; tree_end(size_tree_end).coord];
+    plot3(branch_goal(:,1), branch_goal(:,2), branch_goal(:,3) ,'o-', 'color', '#B80F0A')
+    
+    % Plot view configuration
+    grid on
+    title('Lynx robot configitarion space','FontSize', 30, 'FontWeight', 'bold')
+    xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
+    ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
+    zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    %Check if we have a path from start to goal
+    if num_added_tree == 2
+        path_from_start = [];
+        path_from_goal = []; 
+        
+        %using the index of parent points build tree from start
+        tree_node_num = size_tree
         while(tree_node_num ~= -1)
-            path = [path; tree(tree_node_num)];
-            tree_node_num = tree_node(tree_node_num).parent;
+            path_from_start = [tree(tree_node_num).coord; path_from_start];
+            tree_node_num = tree(tree_node_num).parent;
         end
+        
+        %using the index of parent points build tree from goal
+        first = 0;
+        tree_node_num_end = size_tree_end;
+        while(tree_node_num_end ~= -1)
+            if first == 0
+                first = first + 1;
+                tree_node_num_end = tree_end(tree_node_num_end).parent;
+                continue
+            end
+            path_from_goal = [path_from_goal; tree_end(tree_node_num_end).coord];
+            tree_node_num_end = tree_end(tree_node_num_end).parent;
+        end
+        
+        %join the 2 trees
+        path = [path_from_start; path_from_goal];
+        
+        %Plot final path
+         %%%%%%%%%%%%%%%%%%%%%%
+         plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#2E8B57')
+          plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#2E8B57')
+         plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3,'color','#2E8B57')
+         %%%%%%%%%%%%%%%%%%%%%%%%
         break
     end
     
+    
 end
-
-% path = [pi/4 0 0 0 0 0; -pi/4 0 0 0 0 0];
-% % path = [pi/4 pi/4 pi/4 pi/4 pi/4 pi/4; 
-% %         -pi/4 -pi/4 pi/4 pi/4 pi/4 pi/4;]
-% path = [start; path];
-% path = [path; goal]; 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%                  Algortihm Ends Here               %%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    function [reachedGoal] = checkReachedGoal(q_new, goal)
-        if q_new(1) == goal(1) && q_new(2) == goal(2) && q_new(3) == goal(3) 
-            reachedGoal = 1;
-        else
-            reachedGoal = 0;
+
+      % find n points in between 2 given points
+      % here we scale the number of points to generate based on the
+      % distance between start and end and siatance between the 2 points of
+      % interest
+      
+      function [points_in_between] = generate_points_inbetween(p1, p2, number_of_points_to_check)
+        % distance between 2 points
+        points_in_between = [];
+        dist = norm(p2-p1); 
+        normalized_dist = norm(start-goal);        
+        ratio = dist / normalized_dist;
+        num_points = round(number_of_points_to_check * ratio);
+        if(num_points==0)
+            num_points  = 1;
+        end        
+        for i = 0:num_points
+            tmp = p1 + i*(p2 - p1)/num_points;
+            points_in_between = [points_in_between; tmp]; 
         end
+      end
+    
+    % function to genrate the pairs of points that form the robot links at
+    % any given configuration
+    function [start_points, end_points] = collision_check_points(p1)
+        [jointPositions_p1,~] = calculateFK(p1);
+    
+        robot_at_p1 = [jointPositions_p1(1:5,:), jointPositions_p1(2:6,:)];
+
+        start_points = [robot_at_p1(:,1:3)];
+        end_points = [robot_at_p1(:,4:6)];
+
     end
 
-    function [isCollided] = checkCollision(q_new, map)
+    %function to check for collision of robot with obstacle
+    function [isCollided] = checkCollision(start_pts, end_pts, map)
         % For each obstacle in the space
         mrgn = 25; 
-        [jointPositions,T0e] = calculateFK(q_new); 
-        linePt1 = jointPositions(1:5, :);
-        linePt2 = jointPositions(2:6, :);
         
         for ii=1:size(map.obstacles)
             % Pad the obstacle
@@ -110,7 +256,7 @@ end
 
             % Check for collisions with all the lines, which is a check for all
             % links of the robot.
-            isCollided = detectCollision(linePt1, linePt2,currObstacle);
+            isCollided = detectCollision(start_pts, end_pts,currObstacle);
             
         end
 
