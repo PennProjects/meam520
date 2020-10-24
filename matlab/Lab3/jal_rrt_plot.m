@@ -41,11 +41,14 @@ tree_end(1).parent = -1;
 
 
 epsilon = 0.01;
-reachedGoal = checkReachedGoal(start, goal, epsilon);
+% reachedGoal = checkReachedGoal(start, goal, epsilon);
 alpha = 1000;
 
+%%%%
+    num_added_tree = 0; 
+%%%%
 
-while reachedGoal == 0
+while num_added_tree ~= 2
     
     %%%%
     num_added_tree = 0; 
@@ -56,7 +59,9 @@ while reachedGoal == 0
     temp_upperlimit = max(start,goal)+epsilon;
     
     random_array = rand(1,6);
-    random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;
+    
+    random_angles = robot.lowerLim +  (robot.upperLim-robot.lowerLim).*random_array;
+%     random_angles = temp_lowerlimit + (temp_upperlimit-temp_lowerlimit).*random_array;
     
     %keeping rand angles within limit
     %%%%%%%%%%
@@ -81,36 +86,36 @@ while reachedGoal == 0
     for idx = 1:size_tree
         dist_array = [dist_array; sqrt(sum((q_new - tree(idx).coord).^2))];
     end
-    [min_dist, min_dist_idx] = min(dist_array);
+    [~, min_dist_idx] = min(dist_array);
     
     
     
     closest_q = tree(min_dist_idx).coord;
     
-    [start_points, end_points] = collision_check_points(q_new, closest_q); 
-    [isCollided] = checkCollision(start_points, end_points, map); 
+%     [start_points, end_points] = collision_check_points(q_new, closest_q); 
+%     [isCollided] = checkCollision(start_points, end_points, map); 
     
-        % check collision for points inbetween closest_q, q_new 
+    % check collision for points inbetween closest_q, q_new 
     % (interpolation in configuration space) 
-    [between_start, between_end] = generate_points_inbetween(closest_q, q_new, alpha);
+    [points_in_between_start] = generate_points_inbetween(closest_q, q_new, alpha);
     
-    
-    between_start_points = [];
-    between_end_points = []; 
-    for num = 1:size(between_start, 1)
-        [between_start_point, between_end_point] = collision_check_points(between_start(num, :), between_end(num, :)); 
-        between_start_points = [between_start_points; between_start_point]; 
-        between_end_points = [between_end_points; between_end_point];
+    all_between_robot_joint_start_start = [];
+    all_between_robot_joint_end_start = []; 
+    for num = 1:size(points_in_between_start, 1)
+        [each_point_robot_joint_start_start, each_point_robot_joints_end_start ] = collision_check_points(points_in_between_start(num, :)); 
+        all_between_robot_joint_start_start = [all_between_robot_joint_start_start;each_point_robot_joint_start_start];
+        all_between_robot_joint_end_start = [all_between_robot_joint_end_start;each_point_robot_joints_end_start];
+
     end
     
-    [isCollided2] = checkCollision(between_start_points, between_end_points, map); 
+    [isCollided2_start] = checkCollision(all_between_robot_joint_start_start, all_between_robot_joint_end_start, map); 
     
 %     if isCollided 
 %         continue
 %     elseif isCollided2
 %         continue
 %     else
-    if any(isCollided)==0 && any(isCollided2)==0
+    if any(isCollided2_start)==0
         tree(size_tree+1).parent = min_dist_idx;
         tree(size_tree+1).coord = q_new;
         %%%
@@ -119,39 +124,42 @@ while reachedGoal == 0
         %%%
     end
     
+    
+    
     %%%%%%% checking for tree_end 
     dist_array_end = [];
     size_tree_end = size(tree_end, 2);
     for idx = 1:size_tree_end
-        dist_array_end = [dist_array_end; sqrt(sum((q_new - tree(idx).coord).^2))];
+        dist_array_end = [dist_array_end; sqrt(sum((q_new - tree_end(idx).coord).^2))];
     end
-    [min_dist_end, min_dist_idx_end] = min(dist_array_end);
+    [~, min_dist_idx_end] = min(dist_array_end);
     
     closest_q_end = tree_end(min_dist_idx_end).coord;
     
-    [start_points_end, end_points_end] = collision_check_points(q_new, closest_q_end); 
-    [isCollided_end] = checkCollision(start_points_end, end_points_end, map); 
+%     [start_points_end, end_points_end] = collision_check_points(q_new, closest_q_end); 
+%     [isCollided_end] = checkCollision(start_points_end, end_points_end, map); 
     
     % check collision for points inbetween closest_q, q_new 
     % (interpolation in configuration space) 
-    [between_start_end, between_end_end] = generate_points_inbetween(closest_q_end, q_new, alpha);
+    [points_in_between_goal] = generate_points_inbetween(closest_q_end, q_new, alpha);
     
-    between_start_points_end = [];
-    between_end_points_end = []; 
-    for num = 1:size(between_start_end, 1)
-        [between_start_point_end, between_end_point_end] = collision_check_points(between_start_end(num, :), between_end_end(num, :)); 
-        between_start_points_end = [between_start_points_end; between_start_point_end]; 
-        between_end_points_end = [between_end_points_end; between_end_point_end];
+    all_between_robot_joint_start_goal = [];
+    all_between_robot_joint_end_goal = []; 
+    for num = 1:size(points_in_between_goal, 1)
+        [each_point_robot_joint_start_goal, each_point_robot_joints_end_goal ] = collision_check_points(points_in_between_goal(num, :)); 
+        all_between_robot_joint_start_goal = [all_between_robot_joint_start_goal;each_point_robot_joint_start_goal];
+        all_between_robot_joint_end_goal = [all_between_robot_joint_end_goal;each_point_robot_joints_end_goal];
+
     end
     
-    [isCollided2_end] = checkCollision(between_start_points_end, between_end_points_end, map); 
+    [isCollided2_end] = checkCollision(all_between_robot_joint_start_goal, all_between_robot_joint_end_goal, map); 
     
 %     if isCollided_end 
 %         continue
 %     elseif isCollided2_end
 %         continue
 %     else
-    if any(isCollided_end) ==0  && any(isCollided2_end)==0
+    if any(isCollided2_end)==0
         tree_end(size_tree_end+1).parent = min_dist_idx_end;
         tree_end(size_tree_end+1).coord = q_new;
         num_added_tree = num_added_tree + 1;
@@ -163,7 +171,7 @@ while reachedGoal == 0
     %For live tree plot
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     branch = [tree(min_dist_idx).coord; tree(size_tree).coord];
-    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#B80F0A')
+    plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', 'b')
     hold on
     drawnow
     plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
@@ -207,6 +215,13 @@ while reachedGoal == 0
         end
        
         path = [path_from_start; path_from_goal];
+        
+        %For live tree plot
+         %%%%%%%%%%%%%%%%%%%%%%
+         plot3(start(1), start(2), start(3), '.', 'MarkerSize',50, 'color', '#2E8B57')
+          plot3(goal(1), goal(2), goal(3),'.', 'MarkerSize',50, 'color', '#2E8B57')
+         plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3,'color','#2E8B57')
+         %%%%%%%%%%%%%%%%%%%%%%%%
         break
     end
     
@@ -248,10 +263,11 @@ end
 %%%                  Algortihm Ends Here               %%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      function [start_points, end_points] = generate_points_inbetween(p1, p2, alpha)
-        start_points = [];
-        end_points = [];
-        % distance between 2 points 
+
+      % find n points in between
+      function [points_in_between] = generate_points_inbetween(p1, p2, alpha)
+        % distance between 2 points
+        points_in_between = [];
         dist = norm(p2-p1); 
 %         normalized_dist = dist / sqrt(numel(p2));
         normalized_dist = norm(start-goal);        
@@ -262,38 +278,46 @@ end
         end
         
         
-        for i = 1:num_points
+        for i = 0:num_points
             tmp = p1 + i*(p2 - p1)/num_points;
-            prev_tmp = p1 + (i-1)*(p2 - p1)/num_points;
-            start_points = [start_points; prev_tmp]; 
-            end_points = [end_points; tmp];
+            points_in_between = [points_in_between; tmp]; 
         end
     end
     
     
     
-    function [start_points, end_points] = collision_check_points(p1,p2)
+%     function [start_points, end_points] = collision_check_points(p1,p2)
+%         [jointPositions_p1,~] = calculateFK(p1);
+%         [jointPositions_p2,~] = calculateFK(p2);
+% 
+% 
+%         robot_at_p1 = [jointPositions_p1(1:5,:), jointPositions_p1(2:6,:)];
+%         robot_at_p2 = [jointPositions_p2(1:5,:), jointPositions_p2(2:6,:)];
+% 
+%         concat_points = [robot_at_p1;robot_at_p2];
+% 
+%         start_points = [concat_points(:,1:3)];
+%         end_points = [concat_points(:,4:6)];
+% 
+%     end
+
+    function [start_points, end_points] = collision_check_points(p1)
         [jointPositions_p1,~] = calculateFK(p1);
-        [jointPositions_p2,~] = calculateFK(p2);
-
-
+    
         robot_at_p1 = [jointPositions_p1(1:5,:), jointPositions_p1(2:6,:)];
-        robot_at_p2 = [jointPositions_p2(1:5,:), jointPositions_p2(2:6,:)];
 
-        concat_points = [robot_at_p1;robot_at_p2];
-
-        start_points = [concat_points(:,1:3)];
-        end_points = [concat_points(:,4:6)];
+        start_points = [robot_at_p1(:,1:3)];
+        end_points = [robot_at_p1(:,4:6)];
 
     end
 
-    function [reachedGoal] = checkReachedGoal(q_new, goal, epsilon)
-        if ((abs(q_new(1) - goal(1)) <= epsilon) && (abs(q_new(2) - goal(2)) <= epsilon) && (abs(q_new(3) - goal(3)) <= epsilon)) 
-            reachedGoal = 1;
-        else
-            reachedGoal = 0;
-        end
-    end
+%     function [reachedGoal] = checkReachedGoal(q_new, goal, epsilon)
+%         if ((abs(q_new(1) - goal(1)) <= epsilon) && (abs(q_new(2) - goal(2)) <= epsilon) && (abs(q_new(3) - goal(3)) <= epsilon)) 
+%             reachedGoal = 1;
+%         else
+%             reachedGoal = 0;
+%         end
+%     end
 
     function [isCollided] = checkCollision(start_pts, end_pts, map)
         % For each obstacle in the space
