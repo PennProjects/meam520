@@ -18,7 +18,9 @@ path = [];
 robot.d1 = 76.2;
 robot.a2 = 146.05;
 robot.a3 = 187.325;
-robot.d5 = 68;
+% robot.d5 = 68;
+%get frame centre at tip of gripper
+robot.d5 = 68 + 12.5;
 robot.lg = 35;
 robot.lowerLim = [-1.4000 -1.2000 -1.8000 -1.9000 -2 -15];
 robot.upperLim = [1.4000 1.4000 1.7000 1.7000 1.5000 30];
@@ -32,14 +34,11 @@ robot.d4 = 34;
 %with coord as the point and parent as the index of parent point
 % tree form start point
 tree(1).coord = start; 
-tree(1).parent = 0;
+tree(1).parent = -1;
 
 %tree form goal
 tree_end(1).coord = goal;
 tree_end(1).parent = -1; 
-
-%tolerance for comparing angles 
-epsilon = 0.001;
 
 %max number of points to check for collision between 2 points
 number_of_points_to_check= 1000;
