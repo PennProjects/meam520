@@ -6,13 +6,13 @@ addpath('../Core')
 
 %% Simulation Parameters
 
-start = [-pi/4,-pi/4,0,0,0,0];
-goal = [1.2,1,0,0,0,0];
+start = [0,0,0,0,0,0]; 
+goal = [-1.4,pi/4,0,0,0,0];
 
 map = loadmap('map2.txt');
 
 % Find collision-free path using RRT to get list of waypoints
-[path] = jal_rrt(map, start, goal);
+[path] = jal_rrt_plot(map, start, goal);
 
 % [path] = astar(map, start, goal);
 
@@ -48,6 +48,13 @@ for target_index = 1:length(path(:,1))
             reached_target = true;
             count = 0;
         end
+% 
+%           [pos, vel] = lynx.get_state();
+%           if abs(pos(1)- q(1)) <=e && abs(pos(2)-q(2)) <= e && abs(pos(3)-q(3))<=e
+%               reached_target = true;
+%           else
+%               lynx.set_pos(q)
+%           end
 
         % End of student code
     end
