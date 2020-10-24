@@ -52,6 +52,8 @@ iteration_count = 0;
  
 while (iteration_count < max_iterations)
     
+    %iteration counter
+    iteration_count = iteration_count +1 ;    
  
     num_added_tree = 0; 
     
@@ -164,7 +166,7 @@ while (iteration_count < max_iterations)
     
     % Plot view configuration
     grid on
-    title('Lynx robot configuration space','FontSize', 30, 'FontWeight', 'bold')
+    title(['Lynx robot configuration space at iterations :  ' num2str(iteration_count) ],'FontSize', 20, 'FontWeight', 'bold')
     xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
