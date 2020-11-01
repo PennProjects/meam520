@@ -136,10 +136,20 @@ J_v(:,4) = cross(z_0_i(4,:),(jointPositions(6,:)-jointPositions(4,:)))';
 J_v(:,5) = cross(z_0_i(5,:),(jointPositions(6,:)-jointPositions(5,:)))';
 J_v(:,6) = cross(z_0_i(6,:),(jointPositions(6,:)-jointPositions(6,:)))';
 
+
+%Using formuala for Revolute joints : Jw = Z_i-1 x (O_6 - O_i-1)
+J_w(:,1) = (z_0_i(1,:))';
+J_w(:,2) = (z_0_i(2,:))';
+J_w(:,3) = (z_0_i(3,:))';
+J_w(:,4) = (z_0_i(4,:))';
+J_w(:,5) = (z_0_i(5,:))';
+J_w(:,6) = (z_0_i(6,:))';
+
+
 %Input of Joint velocities
 q_dot(:,1) = [0 0 0 0 0 0];
 q_dot(:,2) = [0.1 0 0 0 0 0];
-q_dot(:,3) = [0 0.1 0 0 0 0];
+q_dot(:,3) = [0  0.1 0 0 0 0];
 q_dot(:,4) = [0 0 0.1 0 0 0];
 q_dot(:,5) = [0 0 0 0.1 0 0];
 q_dot(:,6) = [0 0 0 0 0.1 0];
@@ -148,5 +158,7 @@ q_dot(:,7) = [0 0 0 0 0 0.1];
 
 %Compiling Linear velocity
 v = (J_v*q_dot())'
+
+w = (J_w*q_dot())';
           
           
