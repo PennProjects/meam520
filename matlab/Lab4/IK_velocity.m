@@ -114,15 +114,17 @@ J_w_ = J_w(:, 1:joint);
 J = [J_v_; J_w_];
 xi = [v; omega];
 
-rank_J_v_1 = rank(J_v_);
-rank_J_w_1 = rank(J_w_); 
+rank_J = rank(J);
 
-rank_J_v_2 = rank([J_v_ v]);
-rank_J_w_1 = rank([J_w_ omega]); 
+rank_J_2 = rank([J xi]);
 
-if rank_J_v_1 == rank_J_v_2
+% J singularity
+% xi is infeasible
+% NaNs
+
+if rank_J == rank_J_2
     % solution exists
-    dq = pinv(J)*xi;
+    dq = J \ xi;
     % minimize least squares error 
 end
 
