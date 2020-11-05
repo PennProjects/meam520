@@ -120,7 +120,8 @@ J_uniq = J;
 %
 rank_J = rank(J_uniq);
 
-xi_uniq = xi(unique_index, :)
+% xi_uniq = xi(unique_index, :)
+xi_uniq = xi
 
 rank_J_2 = rank([J_uniq xi_uniq]);
 
