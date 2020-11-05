@@ -98,7 +98,7 @@ for i = 1:joint
 end
 
 
-
+J = [J_v;J_w]
 %reducing dq for joint of interest
 dq_ = dq(1:joint)';
 

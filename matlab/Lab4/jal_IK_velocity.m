@@ -90,43 +90,49 @@ X(6,:) = (T0e*[0;0;0;1])';
 jointPositions = X(:,1:3);
 
 %Calculating linear joint velocity 
-%Using formuala for Revolute joints : Jv = Z_i-1 x (O_6 - O_i-1)
-J_v(:,1) = cross(z_0_i(1,:),(jointPositions(6,:)-jointPositions(1,:)))';
-J_v(:,2) = cross(z_0_i(2,:),(jointPositions(6,:)-jointPositions(2,:)))';
-J_v(:,3) = cross(z_0_i(3,:),(jointPositions(6,:)-jointPositions(3,:)))';
-J_v(:,4) = cross(z_0_i(4,:),(jointPositions(6,:)-jointPositions(4,:)))';
-J_v(:,5) = cross(z_0_i(5,:),(jointPositions(6,:)-jointPositions(5,:)))';
-J_v(:,6) = cross(z_0_i(6,:),(jointPositions(6,:)-jointPositions(6,:)))';
+for i = 1:joint
+    %Using formuala for Revolute joints : Jv = Z_i-1 x (O_n - O_i-1)
+    J_v(:,i) = cross(z_0_i(i,:),(jointPositions(joint,:)-jointPositions(i,:)))';
+    
+    %Using formuala for Revolute joints : Jw = Z_i-1 x (O_6 - O_i-1)
+    J_w(:,i) = (z_0_i(i,:))';
+       
+end
 
 
-%Using formuala for Revolute joints : Jw = Z_i-1 x (O_6 - O_i-1)
-J_w(:,1) = (z_0_i(1,:))';
-J_w(:,2) = (z_0_i(2,:))';
-J_w(:,3) = (z_0_i(3,:))';
-J_w(:,4) = (z_0_i(4,:))';
-J_w(:,5) = (z_0_i(5,:))';
-J_w(:,6) = (z_0_i(6,:))';
-
-%Compiling Linear velocity for only interested joint
-J_v_ = J_v(:, 1:joint);
-J_w_ = J_w(:, 1:joint);
-
-J = [J_v_; J_w_];
+J = [J_v; J_w]
 xi = [v; omega];
 
-rank_J = rank(J);
 
-rank_J_2 = rank([J xi]);
+%checking for singular rows
+rank_J = rank(J)
+
+% if rank_J <5
+%     J = round(J,3);
+%     [J_uniq, unique_index, repeat_index] = unique(J, 'rows')
+% else
+%     J_uniq = J;
+% end
+
+J_uniq = J;
+
+
+%
+rank_J = rank(J_uniq);
+
+xi_uniq = xi(unique_index, :)
+
+rank_J_2 = rank([J_uniq xi_uniq]);
 
 % J singularity
 % xi is infeasible
 % NaNs
 
-if rank_J == rank_J_2
+% if rank_J == rank_J_2
     % solution exists
-    dq = J \ xi;
+    dq = pinv(J_uniq)* xi_uniq;
     % minimize least squares error 
-end
+% end
 
 
 
