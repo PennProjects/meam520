@@ -100,28 +100,29 @@ for i = 1:joint
 end
 
 
-J = [J_v; J_w]
+J = [J_v; J_w];
 xi = [v; omega];
 
 
 %checking for singular rows
-rank_J = rank(J)
+rank_J = rank(J);
 
-% if rank_J <5
-%     J = round(J,3);
-%     [J_uniq, unique_index, repeat_index] = unique(J, 'rows')
-% else
-%     J_uniq = J;
-% end
+if rank_J <5
+    J = round(J,3);
+    [J_uniq, unique_index, repeat_index] = unique(J, 'rows')
+    xi_uniq = xi(unique_index, :)
+else
+    J_uniq = J;
+    xi_uniq = xi;
+end
 
-J_uniq = J;
+% J_uniq = J;
 
 
-%
+%Checking feasinility
 rank_J = rank(J_uniq);
 
-% xi_uniq = xi(unique_index, :)
-xi_uniq = xi
+
 
 rank_J_2 = rank([J_uniq xi_uniq]);
 
