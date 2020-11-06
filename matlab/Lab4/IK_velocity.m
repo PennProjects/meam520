@@ -26,55 +26,69 @@ d5 = 68;                        % Distance between joint 3 and joint 5
 lg = 0;                         % Distance between joint 5 and end effector (gripper length)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%Cleaned Matrix for symbollic calculation
-T01 = [cos(q(1)) 0  -sin(q(1))  0;
-      sin(q(1)) 0 cos(q(1))  0;
-              0            -1            0 d1;
+%Computing Transformation Matices
+%Frame 1 w.r.t Frame 0
+T01 = [cos(q(1)) -sin(q(1))*cos(-pi/2)  sin(q(1))*sin(-pi/2)  0;
+      sin(q(1))  cos(q(1))*cos(-pi/2) -cos(q(1))*sin(-pi/2)  0;
+              0            sin(-pi/2)            cos(-pi/2) d1;
               0                     0                  0     1];
-%Cleaned Matrix for symbollic calculation          
-T12 = [sin(q(2)) cos(q(2))  0   a2*sin(q(2));
-      -cos(q(2))  sin(q(2))  0   -a2*cos(q(2));
+          
+%Frame 2 w.r.t Frame 1          
+T12 = [cos(q(2)-(pi/2)) -sin(q(2)-(pi/2))  0   a2*cos(q(2)-(pi/2));
+      sin(q(2)-(pi/2))  cos(q(2)-(pi/2))  0   a2*sin(q(2)-(pi/2));
               0                        0  1                     0;
               0                        0  0                     1];
-%Cleaned Matrix for symbollic calculation         
-T23 = [-sin(q(3)) -cos(q(3))  0   -a3*sin(q(3));
-      cos(q(3))  -sin(q(3))  0   a3*cos(q(3));
+
+%Frame 3 w.r.t Frame 2
+T23 = [cos(q(3)+(pi/2)) -sin(q(3)+(pi/2))  0   a3*cos(q(3)+(pi/2));
+      sin(q(3)+(pi/2))  cos(q(3)+(pi/2))  0   a3*sin(q(3)+(pi/2));
               0                        0  1                     0;
               0                        0  0                     1];
-%Cleaned Matrix for symbollic calculation          
-T34 = [sin(q(4)) 0   cos(q(4))   0;
-      -cos(q(4))  0  sin(q(4))   0;
-              0                          -1                    0   0;
+
+%Frame 4 w.r.t Frame 3
+T34 = [cos(q(4)-(pi/2)) -sin(q(4)-(pi/2))*cos(-pi/2)   sin(q(4)-(pi/2))*sin(-pi/2)   0;
+      sin(q(4)-(pi/2))  cos(q(4)-(pi/2))*cos(-pi/2)  -cos(q(4)-(pi/2))*sin(-pi/2)   0;
+              0                          sin(-pi/2)                    cos(-pi/2)   0;
               0                                   0                             0   1];
-          %Cleaned Matrix for symbollic calculation
-T4e = [cos(q(5)) -sin(q(5))  0        0;
+%Frame 5 w.r.t Frame 4 
+T45 = [cos(q(5)) -sin(q(5))  0        0;
       sin(q(5))  cos(q(5))  0        0;
               0          0  1       d5;
               0          0  0        1];
+          
+%Frame 6 w.r.t Frame 5 
+T56 = [ 1  0  0   0;
+       0  1  0   0;
+       0  0  1  lg;
+       0  0  0   1];
+   
+   
 % Computing the Transformation matrix to Frame 0          
 T02 = T01*T12;
 T03 = T02*T23;
 T04 = T03*T34;
-T0e = T04*T4e;
+T05 = T04*T45;
+T06 = T05*T56;
 
 %Calculating the Zaxis of frame i wrt to Frame 0
 z_0_i = [[0 0 1];
           T01([9 10 11]);
           T02([9 10 11]);
           T03([9 10 11]);
-          T04([9 10 11])
-          T0e([9 10 11])];   
+          T04([9 10 11]);
+          T05([9 10 11]);
+          T06([9 10 11])];
       
 %Calculating the position of orgin of each joint
-
-%Position of Third Joint (Elbow Revolute)
-X(3,:) = (T02*[0;0;0;1])';
 
 %Position of First Joint (Base Revolute)
 X(1,:) = [0 0 0 1];
 
 %Position of Second Joint (Shoulder Revolute)
 X(2,:) = (T01*[0;0;0;1])';
+
+%Position of Third Joint (Elbow Revolute)
+X(3,:) = (T02*[0;0;0;1])';
 
 %Position of Fourth Joint (1st Wrist)
 X(4,:) = (T03*[0;0;0;1])';
@@ -83,50 +97,41 @@ X(4,:) = (T03*[0;0;0;1])';
 X(5,:) = (T04*[0;0;d4;1])';
 
 %Position of Gripper (Base of the Gripper)
-X(6,:) = (T0e*[0;0;0;1])';
+X(6,:) = (T05*[0;0;0;1])';
 
 
 %Calculating the locations of each joint in the Base Frame
 jointPositions = X(:,1:3);
 
-%Calculating linear joint velocity 
-%Using formuala for Revolute joints : Jv = Z_i-1 x (O_6 - O_i-1)
-J_v(:,1) = cross(z_0_i(1,:),(jointPositions(6,:)-jointPositions(1,:)))';
-J_v(:,2) = cross(z_0_i(2,:),(jointPositions(6,:)-jointPositions(2,:)))';
-J_v(:,3) = cross(z_0_i(3,:),(jointPositions(6,:)-jointPositions(3,:)))';
-J_v(:,4) = cross(z_0_i(4,:),(jointPositions(6,:)-jointPositions(4,:)))';
-J_v(:,5) = cross(z_0_i(5,:),(jointPositions(6,:)-jointPositions(5,:)))';
-J_v(:,6) = cross(z_0_i(6,:),(jointPositions(6,:)-jointPositions(6,:)))';
+%Calculating manipulator Jacobian upto joint of interest
+for i = 1:joint
+    %Using formuala for Revolute joints : Jv = Z_i-1 x (O_n - O_i-1)    
+    J_v(:,i) = cross(z_0_i(i,:),(jointPositions(joint,:)-jointPositions(i,:)))';
+    
+    %Using formuala for Revolute joints : Jw = Z_i-1 x (O_n - O_i-1)
+    J_w(:,i) = (z_0_i(i,:))';
+       
+end
 
 
-%Using formuala for Revolute joints : Jw = Z_i-1 x (O_6 - O_i-1)
-J_w(:,1) = (z_0_i(1,:))';
-J_w(:,2) = (z_0_i(2,:))';
-J_w(:,3) = (z_0_i(3,:))';
-J_w(:,4) = (z_0_i(4,:))';
-J_w(:,5) = (z_0_i(5,:))';
-J_w(:,6) = (z_0_i(6,:))';
-
-%Compiling Linear velocity for only interested joint
-J_v_ = J_v(:, 1:joint);
-J_w_ = J_w(:, 1:joint);
-
-J = [J_v_; J_w_];
+%Constructing the manipulator Jacobian J and body velocity xi
+J = [J_v; J_w];
 xi = [v; omega];
 
-rank_J = rank(J);
+%Check for NaNs in xi
+[no_nan_row, no_nan_col] = find(~isnan(xi));
 
-rank_J_2 = rank([J xi]);
+%Keep only non nan rows
+J = J(no_nan_row, :);
+xi = xi(no_nan_row, :);
 
-% J singularity
-% xi is infeasible
-% NaNs
+%Calculating dq by using a pseudoinverse for J inverse giving us a least
+%square solution
+dq = (pinv(J)* xi)';
 
-if rank_J == rank_J_2
-    % solution exists
-    dq = J \ xi;
-    % minimize least squares error 
-end
+%Setting non tracked joins to dq =0
+dq = [dq(1:joint), zeros(1,6-joint)];
+    
 
 
 
