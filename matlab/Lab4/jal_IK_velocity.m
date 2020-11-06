@@ -100,39 +100,41 @@ for i = 1:joint
 end
 
 
+
 J = [J_v; J_w];
 xi = [v; omega];
+
+%Check for NaNs in xi
+
+[no_nan_row, no_nan_col] = find(~isnan(xi));
+
+%Keep only non nan rows
+J = J(no_nan_row, :);
+xi = xi(no_nan_row, :);
+
 
 
 %checking for singular rows
 rank_J = rank(J);
-
 if rank_J <5
     J = round(J,3);
-    [J_uniq, unique_index, repeat_index] = unique(J, 'rows')
+    [J_uniq, unique_index, repeat_index] = unique(J, 'rows', 'stable');
     xi_uniq = xi(unique_index, :)
 else
     J_uniq = J;
     xi_uniq = xi;
 end
 
-% J_uniq = J;
 
-
-%Checking feasinility
+%Checking feasibility
 rank_J = rank(J_uniq);
-
-
-
 rank_J_2 = rank([J_uniq xi_uniq]);
 
-% J singularity
-% xi is infeasible
-% NaNs
 
 % if rank_J == rank_J_2
     % solution exists
     dq = pinv(J_uniq)* xi_uniq;
+    
     % minimize least squares error 
 % end
 
