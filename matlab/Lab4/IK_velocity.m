@@ -103,36 +103,40 @@ X(6,:) = (T05*[0;0;0;1])';
 %Calculating the locations of each joint in the Base Frame
 jointPositions = X(:,1:3);
 
-%Calculating manipulator Jacobian upto joint of interest
-for i = 1:joint
+
+%Calculating manipulator Jacobian upto joint of interest.
+if joint == 0
+    dq = zeros(1,6);
+else
+    for i = 1:joint
     %Using formuala for Revolute joints : Jv = Z_i-1 x (O_n - O_i-1)    
     J_v(:,i) = cross(z_0_i(i,:),(jointPositions(joint,:)-jointPositions(i,:)))';
     
     %Using formuala for Revolute joints : Jw = Z_i-1 x (O_n - O_i-1)
     J_w(:,i) = (z_0_i(i,:))';
        
-end
+    end
 
 
-%Constructing the manipulator Jacobian J and body velocity xi
-J = [J_v; J_w];
-xi = [v; omega];
+    %Constructing the manipulator Jacobian J and body velocity xi
+    J = [J_v; J_w];
+    xi = [v; omega];
 
-%Check for NaNs in xi
-[no_nan_row, no_nan_col] = find(~isnan(xi));
+    %Check for NaNs in xi
+    [no_nan_row, no_nan_col] = find(~isnan(xi));
 
-%Keep only non nan rows
-J = J(no_nan_row, :);
-xi = xi(no_nan_row, :);
+    %Keep only non nan rows
+    J = J(no_nan_row, :);
+    xi = xi(no_nan_row, :);
 
-%Calculating dq by using a pseudoinverse for J inverse giving us a least
-%square solution
-dq = (pinv(J)* xi)';
+    %Calculating dq by using a pseudoinverse for J inverse giving us a least
+    %square solution
+    dq = (pinv(J)* xi)';
 
-%Setting non tracked joins to dq =0
-dq = [dq(1:joint), zeros(1,6-joint)];
+    %Setting non tracked joins to dq =0
+    dq = [dq(1:joint), zeros(1,6-joint)];
     
-
+end
 
 
 end

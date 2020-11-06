@@ -99,27 +99,34 @@ X(6,:) = (T05*[0;0;0;1])';
 %Calculating the locations of each joint in the Base Frame
 jointPositions = X(:,1:3);
 
+
 %Calculating manipulator Jacobian upto joint of interest.
-for i = 1:joint
+if joint == 0
+    v = [0 0 0];
+    omega = [0 0 0];
+else
+
+    for i = 1:joint
     %Using formuala for Revolute joints : Jv = Z_i-1 x (O_n - O_i-1)
     J_v(:,i) = cross(z_0_i(i,:),(jointPositions(joint,:)-jointPositions(i,:)))';
     
     %Using formuala for Revolute joints : Jw = Z_i-1 x (O_n - O_i-1)
     J_w(:,i) = (z_0_i(i,:))';
        
+    end
+
+    %Constructing the manipulator Jacobian J and body velocity xi
+    J = [J_v; J_w];
+    %reducing dq for joint of interest
+    dq = dq(1:joint)';
+
+
+    %Computing Linear velocity
+    v = (J_v*dq);
+
+    %Computing Angular velocity
+    omega = (J_w*dq);
 end
-
-%Constructing the manipulator Jacobian J and body velocity xi
-J = [J_v; J_w];
-%reducing dq for joint of interest
-dq = dq(1:joint)';
-
-
-%Computing Linear velocity
-v = (J_v*dq);
-
-%Computing Angular velocity
-omega = (J_w*dq);
 
 
 end
