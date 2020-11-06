@@ -1,23 +1,18 @@
 
 clc
 clear
-% q = [0 0 pi/2 0 0 0];
-% dq= [0 0.1 0 0 0 0];
-% 
-% joint = 6;
-% 
-% [v, omega] = jal_FK_velocity(q,dq,joint)
-% 
-% 
-% dq_ = jal_IK_velocity(q,v,omega,joint)
+
 
 lowerLim = [-1.4000 -1.2000 -1.8000 -1.9000 -2 -15];
 upperLim = [1.4000 1.4000 1.7000 1.7000 1.5000 30];
 
 
-q = [0 0 0 0 0 0];
+q = [-1.3 0 0 -pi/2 0 0];
+% q = [ 0 0 -0.5 0 0 0];
 dq = [0 0 0 0 0 0]';
-joint = 6;
+joint = 3;
+
+
 
 
 a1 = animatedline('Color',[0 .7 .7]);
@@ -40,10 +35,14 @@ while (i < size & q>lowerLim  & q< upperLim)
 % %circle
 th = 0:2*pi/300:2*pi;
 r = 1;
-v = [0 r*cos(th(i)) r*sin(th(i))]'
-omega = [0 0 0]'
+% Z-Y PLANE
+% v = [0 r*cos(th(i)) r*sin(th(i))]';
 
-dq = jal_IK_velocity(q,v,omega,joint);
+%X-Y PLANE
+v = [r*cos(th(i)) r*sin(th(i)) 0]';
+omega = [0 0 0]';
+
+dq = jal_IK_velocity(q,v,omega,joint)
 
 
 
@@ -73,13 +72,13 @@ zlabel('Zo', 'FontSize', 20, 'FontWeight', 'bold')
 xlim([-100, 500])
 ylim([-100 500])
 zlim([-100, 500])
-% pause(0.1)
+pause(0.0001)
 grid on
 drawnow 
 
 
 i = i+1; 
-q = q+dq'
+q = q+dq
 end 
 
 
