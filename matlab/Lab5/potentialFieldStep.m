@@ -12,5 +12,21 @@ function [qNext, isDone] = potentialFieldStep(qCurr, map, qGoal)
 %   isDone - a boolean that is true when the robot has reached the goal or
 %            is stuck. false otherwise
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-end
+
+rho_a  = [2 2 2 2 2 2];
+zeta = [1 1 1 1 1 1];
+
+distance_from_goal = abs(qCurr-qGoal)
+
+f_att = [];
+
+
+
+% if(distance_from_goal <= rho_a)
+    para_well = distance_from_goal <= rho_a
+    f_att(para_well) = -zeta(para_well).*(qCurr(para_well)-qGoal(para_well))
+% else
+    con_well = distance_from_goal > rho_a
+    f_att(con_well)= -rho_a(con_well).*zeta(con_well).*((qCurr(con_well)-qGoal(con_well))/norm(qCurr(con_well)-qGoal(con_well)))
