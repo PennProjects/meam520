@@ -16,10 +16,10 @@ function [qNext, isDone] = potentialFieldStep(qCurr, map, qGoal)
 
 num_obstacles = size(map.obstacles, 1);
 
-qCurr = [0 0 0 0 0 0];
+% qCurr = [0 0 0 0 0 0];
 [joint_position_curr,~] = calculateFK(qCurr);
 
-qGoal = [pi/4 -pi/4 0 pi/4 0 0]; 
+% qGoal = [0,0,1.1,0,0,0];
 [joint_position_goal,~] = calculateFK(qGoal);
 
 rho_a  = 5*ones(6,1);
@@ -88,21 +88,29 @@ end
 
 
 % F
-F = (f_att + f_rep_all)
+F = (f_att + f_rep_all);
 tau = zeros(6,1);
 
 for i = 1:6 
-    J_ = calcJacobian(joint_position_curr, i)
+    J_ = calcJacobian(joint_position_curr, i);
     J_ = [[0;0;0;0;0;0],J_];
     Jv = J_(1:3,:);
     Jv(:,end+1:6) = 0;
-    tau = tau + Jv'*F(i,:)'
+    tau = tau + Jv'*F(i,:)';
 % %     Jv = [Jv;J_ ];
 end
 
-step_size = 1*ones(1,6);
+step_size = 0.01*ones(1,6);
 
-qNext = qCurr + step_size*tau/norm(tau);
+qNext = qCurr + step_size*tau/norm(tau)
+
+epsilon = 0.01*ones(1,6);
+
+if qNext-qGoal <epsilon
+    isDone = true;
+else
+    isDone = false;
+end
 end
     
     

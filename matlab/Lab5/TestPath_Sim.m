@@ -6,8 +6,8 @@ addpath('../Core')
 
 %% Simulation Parameters
 
-start = [0,0,0,0,0,0];
-goal = [0,0,1.1,0,0,0];
+qStart = [0,0,0,0,0,0];
+qGoal = [0,0,1.1,0,0,0];
 
 map = loadmap('map1.txt');
 
@@ -34,7 +34,7 @@ for target_index = 1:length(path(:,1))
     count = 0;
     while ~reached_target
         % Check if robot is collided then wait
-        collision = collision || lynx.is_collided();
+        collision = collision | lynx.is_collided();
         pause(0.1)
 
         % iterate count and check if should send next command
