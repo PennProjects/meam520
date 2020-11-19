@@ -70,21 +70,31 @@ for j=1:num_obstacles
     
     five= unit_(x_r, :); %(3,3)
     
-    f_rep(x_r, :) = x.*five
+    f_rep(x_r, :) = x.*five;
     
-    f_rep_all = f_rep + f_rep_all
+    f_rep_all = f_rep + f_rep_all;
     
 end
 
 
 % F
-% F = f_att + f_rep;
-% 
+F = f_att + f_rep_all
+
 % % J
-% Jv = []; 
-% for i:1=6
-%     J_ = calcJacobian(joint_position_curr, i);
-%     Jv = [Jv; ];
+% Jv = [];
+% for i = 1:6 
+%     i
+%     J_ = calcJacobian(joint_position_curr, i)
+% %     Jv = [Jv;J_ ];
 % end
+% Jv
+
+J_ = calcJacobian(joint_position_curr, 6);
+Jv = J_(1:3,:);
+Jv = [[0;0;0],Jv]
+
+torque = Jv' .*F
+
+
 
  
