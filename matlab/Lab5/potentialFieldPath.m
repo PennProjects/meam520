@@ -12,4 +12,12 @@ function [path] = potentialFieldPath(map, qStart, qGoal)
 %   path - Nx6 vector of the path from start to goal
 
 
+[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal)
+
+path = [path; qNext];
+
+path = [qStart;
+        path;
+        qGoal];
+
 end
