@@ -9,10 +9,10 @@ num_obstacles = size(map.obstacles, 1);
 qCurr = [0 0 0 0 0 0];
 [joint_position_curr,~] = calculateFK(qCurr);
 
-qGoal = [pi/4 -pi/4 0 pi/4 0 0]; 
+qGoal = [0,0,1.1,0,0,0];
 [joint_position_goal,~] = calculateFK(qGoal);
 
-rho_a  = 5*ones(6,1);
+rho_a  = 1*ones(6,1);
 % obd
 zeta = [1;1;1;1;1;1]*ones(1,3);
 
@@ -20,12 +20,12 @@ zeta = [1;1;1;1;1;1]*ones(1,3);
 rho_b = 5*ones(6,1);
 eta = [10;10;10;10;10;10]*ones(1,3);
 
-% (joint_position_curr(:,1)-joint_position_goal(:,1)).^2
-a = (joint_position_curr(:,1)-joint_position_goal(:,1)).^2 ;
-b = (joint_position_curr(:,2)-joint_position_goal(:,2)).^2 ;
-c = (joint_position_curr(:,3)-joint_position_goal(:,3)).^2;
-
-distance_from_goal = sqrt(a + b + c);
+% % (joint_position_curr(:,1)-joint_position_goal(:,1)).^2
+% a = (joint_position_curr(:,1)-joint_position_goal(:,1)).^2 ;
+% b = (joint_position_curr(:,2)-joint_position_goal(:,2)).^2 ;
+% c = (joint_position_curr(:,3)-joint_position_goal(:,3)).^2;
+% 
+% distance_from_goal = sqrt(a + b + c);
 
 f_att = [];
 f_rep = [];
@@ -33,14 +33,15 @@ f_rep = [];
 
  for i= 1:6
      
+%     distance_from_goal = sqrt(sum((joint_position_curr(i,:)- joint_position_goal(i,:)).^2)) 
+    distance_from_goal= norm(joint_position_curr(i,:)-joint_position_goal(i,:))
     % attractive force
-    x = distance_from_goal <= rho_a;
-    f_att(x,:) = -zeta(x).*(joint_position_curr(x,:)-joint_position_goal(x,:));
-    
-    y = distance_from_goal > rho_a;
-    f_att(y,:)= -rho_a(y).*zeta(y).*((joint_position_curr(y,:)-joint_position_goal(y,:))/norm(joint_position_curr(y,:)-joint_position_goal(y,:)));
-    
-    
+   	if distance_from_goal < rho_a(i)
+     f_att(i,:) = -zeta(i)*(joint_position_curr(i,:)-joint_position_goal(i,:));
+    else
+%      f_att(i,:)= -rho_a(i).*zeta(i).*((joint_position_curr(i,:)-joint_position_goal(i,:))/distance_from_goal;
+     f_att(i,:)= -rho_a(i)*zeta(i)*((joint_position_curr(i,:)-joint_position_goal(i,:))/distance_from_goal);
+    end
  end
  
 % repulsive force
@@ -50,11 +51,11 @@ for j=1:num_obstacles
 %     rho_i = [];
 %     unit_i = [];
     obs = map.obstacles(j,:);
-    rho_obs =  200*ones(6,1);    
+    rho_obs =  5*ones(6,1);    
    
     [rho_, unit_] = distPointToBox(joint_position_curr, obs);
 %     unit_;
-    rho_ = rho_.* 1;
+    rho_ = rho_.* 0.9;
     
     y_r = rho_ > rho_obs;
     f_rep(y_r, :) = zeros(sum(y_r), 3);
@@ -78,22 +79,30 @@ end
 
 
 % F
-F = f_att + f_rep_all
+F = (f_att + f_rep_all);
+tau = zeros(6,1);
 
-% % J
-% Jv = [];
-% for i = 1:6 
-%     i
-%     J_ = calcJacobian(joint_position_curr, i)
+for i = 1:6 
+    J_ = calcJacobian(joint_position_curr, i);
+    J_ = [[0;0;0;0;0;0],J_];
+    Jv = J_(1:3,:);
+    Jv(:,end+1:6) = 0;
+    tau = tau + Jv'*F(i,:)';
 % %     Jv = [Jv;J_ ];
-% end
-% Jv
+end
 
-J_ = calcJacobian(joint_position_curr, 6);
-Jv = J_(1:3,:);
-Jv = [[0;0;0],Jv]
+step_size = 0.02*ones(1,6);
 
-torque = Jv' .*F
+qNext = qCurr + step_size*tau/norm(tau);
+
+epsilon = 0.1*ones(1,6);
+
+% a = qNext-qGoal
+if abs(qNext-qGoal) <epsilon
+    isDone = true;
+else
+    isDone = false;
+end
 
 
 
