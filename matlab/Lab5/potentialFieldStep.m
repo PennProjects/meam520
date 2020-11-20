@@ -60,7 +60,7 @@ for j=1:num_obstacles
 %     rho_i = [];
 %     unit_i = [];
     obs = map.obstacles(j,:);
-    rho_obs =  200*ones(6,1);    
+    rho_obs =  5*ones(6,1);    
    
     [rho_, unit_] = distPointToBox(joint_position_curr, obs);
 %     unit_;
@@ -100,13 +100,14 @@ for i = 1:6
 % %     Jv = [Jv;J_ ];
 end
 
-step_size = 0.01*ones(1,6);
+step_size = 0.02*ones(1,6);
 
-qNext = qCurr + step_size*tau/norm(tau)
+qNext = qCurr + step_size*tau/norm(tau);
 
-epsilon = 0.01*ones(1,6);
+epsilon = 0.1*ones(1,6);
 
-if qNext-qGoal <epsilon
+% a = qNext-qGoal
+if abs(qNext-qGoal) <epsilon
     isDone = true;
 else
     isDone = false;
