@@ -9,7 +9,7 @@ num_obstacles = size(map.obstacles, 1);
 qCurr = [0 0 0 0 0 0];
 [joint_position_curr,~] = calculateFK(qCurr);
 
-qGoal = [0,0,1.1,0,0,0];
+qGoal = [0,pi/4,pi/4,pi/4,0,0];
 [joint_position_goal,~] = calculateFK(qGoal);
 
 rho_a  = 1*ones(6,1);
@@ -33,8 +33,12 @@ f_rep = [];
 
  for i= 1:6
      
+     distance_from_goal= norm(joint_position_curr(i,:)-joint_position_goal(i,:));
+%      i
+%      (joint_position_curr(i,:)-joint_position_goal(i,:))
+%      (joint_position_curr(i,:)-joint_position_goal(i,:))/distance_from_goal
 %     distance_from_goal = sqrt(sum((joint_position_curr(i,:)- joint_position_goal(i,:)).^2)) 
-    distance_from_goal= norm(joint_position_curr(i,:)-joint_position_goal(i,:))
+    
     % attractive force
    	if distance_from_goal < rho_a(i)
      f_att(i,:) = -zeta(i)*(joint_position_curr(i,:)-joint_position_goal(i,:));
@@ -57,29 +61,31 @@ for j=1:num_obstacles
 %     unit_;
     rho_ = rho_.* 0.9;
     
-    y_r = rho_ > rho_obs;
-    f_rep(y_r, :) = zeros(sum(y_r), 3);
-    
-    x_r = rho_ <= rho_obs;
-    
-    %f_rep_2(x_r, :) = eta(x_r).*(1/rho_(x_r)-1/rho_obs(x_r)).*(1/rho_(x_r).^2).* unit_(x_r, :)
-    one = eta(x_r)'; %(3,1)
-    two = (1./rho_(x_r))';%(1,3);
-    three = (1./rho_obs(x_r))'; %(1,3);
-    four = (1./rho_(x_r).^2)'; %(1,3);
-    x = (one.*(two-three).*four)';
-    
-    five= unit_(x_r, :); %(3,3)
-    
-    f_rep(x_r, :) = x.*five;
+    for i = 1:6
+        
+        if rho_(i) > rho_obs(i);
+            f_rep(i, :) = zeros(1, 3);
+        else
+            f_rep(i, :) = eta(i)*(1/rho_(i)-1/rho_obs(i))*(1/rho_(i).^2)* unit_(i, :)
+        end
+%     one = eta(x_r)'; %(3,1)
+%     two = (1./rho_(x_r))';%(1,3);
+%     three = (1./rho_obs(x_r))'; %(1,3);
+%     four = (1./rho_(x_r).^2)'; %(1,3);
+%     x = (one.*(two-three).*four)';
+%     
+%     five= unit_(x_r, :); %(3,3)
+    end
+%     f_rep(x_r, :) = x.*five;
     
     f_rep_all = f_rep + f_rep_all;
     
 end
 
+f_att 
 
 % F
-F = (f_att + f_rep_all);
+F = (f_att + f_rep_all)
 tau = zeros(6,1);
 
 for i = 1:6 
