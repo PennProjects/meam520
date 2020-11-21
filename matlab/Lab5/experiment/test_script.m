@@ -51,7 +51,7 @@ for i=1:numel(zeta_value)
     legend_i{i} = strcat('rhoa : ',num2str(rhoa_value(i)));
     
     hold on
-    plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3, 'color', col(i,:)) 
+    p(i,:) = plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3, 'color', col(i,:)) 
     plot3(qStart(1), qStart(2), qStart(3), '.', 'MarkerSize',50, 'color', '#0E4D92')
     text(qStart(1), qStart(2), qStart(3), 'Start', 'FontSize', 15)
     plot3(qGoal(1), qGoal(2), qGoal(3),'.', 'MarkerSize',50, 'color', '#B80F0A')
@@ -63,10 +63,14 @@ for i=1:numel(zeta_value)
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
     view(3);
+    
     hold off
 %     legend(num2str(rhoa_value(i)))
+%     legend(p)
 end
-legend(legend_i, 'FontSize',14)
+legend(p, legend_i, 'FontSize',14)
+
+
 % legend(lineplot,{'0.001','0.1','10','1000'})
 % view(a,b)
 % axis([-200 400,-200,400,-200,500])
