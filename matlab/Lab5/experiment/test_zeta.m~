@@ -1,0 +1,34 @@
+% controlling variable: zeta
+
+q_start = [];
+q_goal = []; 
+
+% default 
+zeta_default = ones(6,3);
+eta_default = 10*ones(6,3);
+rhoa_default = 5*ones(6,1);
+
+stepsize_default = 0.01*ones(1,6);
+
+zeta_value = [0.001, 0.1, 1, 10, 100];
+
+eta_value = [0.001, 0.1, 1, 10 100]; 
+
+rho_value = [5, 10, 50, 100, 200]; 
+
+stepsize_value = []; 
+
+for i=1:numel(value)
+    %zeta
+    [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_value(i)*ones(6,3), eta_default, rho_default, stepsize_default);
+    
+    %eta
+    %[path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_value(i)*ones(6,3), rho_default, stepsize_default);
+    
+    %rho
+    %[path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rho_value(i)*ones(6,1), stepsize_default);
+    
+    %stepsize
+    %[path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rho_default, stepsize_value(i)*ones(1,6));
+    
+end

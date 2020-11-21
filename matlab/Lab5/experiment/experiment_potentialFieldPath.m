@@ -1,4 +1,4 @@
-function [path] = potentialFieldPath(map, qStart, qGoal)
+function [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta, eta, rhoa, rhob, stepsize)
 %function [path] = potentialFieldPath(map, qStart, qGoal)
 % This function plans a path through the map using a potential field
 % planner
@@ -11,15 +11,14 @@ function [path] = potentialFieldPath(map, qStart, qGoal)
 % OUTPUTS:
 %   path - Nx6 vector of the path from start to goal
 
-
 qCurr = qStart;
 isDone = false;
 path = [];
 
 while(~isDone)
-[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal);
+[qNext, isDone] = experiment_potentialFieldStep(qCurr, map, qGoal,zeta, eta, rhoa, rhob, stepsize);
 
-if sum(isnan(qNext))
+if isnan(qNext)
 %     qCurr
 %     qNext
     break
@@ -28,16 +27,10 @@ end
 path = [path; qNext];
 
 qCurr = qNext;
-
-% setting the maximum number of path to 100
-if size(path, 1) >= 100
-    break
-end
-
 end
 
 path = [qStart;
         path;
-        qGoal]
+        qGoal];
 
 end
