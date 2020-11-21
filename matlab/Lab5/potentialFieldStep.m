@@ -103,7 +103,7 @@ qNext(qNext<=lowerLimit) = lowerLimit(qNext<=lowerLimit);
 qNext(6) = qGoal(6);
 
 %Checking of the q is close to qGoal
-epsilon = 0.02*ones(1,6);
+epsilon = 0.08*ones(1,6);
 
 if abs(qGoal-qNext) < epsilon
     isDone = true;

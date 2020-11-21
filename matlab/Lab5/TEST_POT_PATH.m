@@ -3,10 +3,9 @@ clear
 
 
 addpath('maps')
-map = loadmap('map2.txt');
 
-qStart = [0,-0.5,0,0,0,0];
-qGoal = [0.1 ,0.1,pi/4,0,0,0];
+qStart = [0,0,0,0,0,0];
+qGoal = [0 ,-pi/4,pi/4,0,0,0];
 
 map = loadmap('map1.txt');
 
