@@ -23,12 +23,12 @@ num_obstacles = size(map.obstacles, 1);
 
 %Setting the potential field parameters
 %distance from goal to switch from conical to parabllic well
-rho_a  = 100*ones(6,1);
+rho_a  = 50*ones(6,1);
 %attractive field strength
-zeta = 10000*ones(6,3);
+zeta = 0.1*ones(6,3);
 
 %distance from obstacle to apply repulsice force
-rho_obs = 30*ones(6,1);
+rho_obs = 20*ones(6,1);
 %repulsive field strength
 eta = 1e6*ones(6,3);
 
@@ -103,7 +103,7 @@ qNext(qNext<=lowerLimit) = lowerLimit(qNext<=lowerLimit);
 qNext(6) = qGoal(6);
 
 %Checking of the q is close to qGoal
-epsilon = 0.1*ones(1,6);
+epsilon = 0.08*ones(1,6);
 
 if abs(qGoal-qNext) < epsilon
     isDone = true;
