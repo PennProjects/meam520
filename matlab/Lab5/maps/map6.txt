@@ -1,4 +1,6 @@
-# Map 5
+# Map 6
+#
+# This map is a narrow passageway
 #
 # usage:
 # element x_min y_min z_min x_max y_max z_max
@@ -8,5 +10,4 @@
 
 boundary -400.0 -400.0 -200.0 400.0 400.0 500.0
 
-block 130 -300 140  400 300 155
-
+block 150 60  -50.0 400 66.7  350.0  
