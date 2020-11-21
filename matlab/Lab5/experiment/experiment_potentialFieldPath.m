@@ -17,7 +17,7 @@ isDone = false;
 path = [];
 
 while(~isDone)
-[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal);
+[qNext, isDone] = experiment_potentialFieldStep(qCurr, map, qGoal, zeta, eta, rhoa, rhob, stepsize);
 
 if sum(isnan(qNext))
 %     qCurr

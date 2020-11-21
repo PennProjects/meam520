@@ -22,8 +22,8 @@ rhoa_value = [5, 10, 50, 100, 200];
 rhob_value = [5, 10, 50, 100, 200]; 
 
 stepsize_value = [0.1, 0.08, 0.06, 0.02, 0.01]; 
-col = ['#FF7F00';'#FFFF00'; '#00FF00';'#0000FF';'#FF0000'];
-legend_i = cell(5,1)
+col = ['dbf3da';'#b8e7b5'; '#94da91';'#0000FF';'#FF0000'];
+lineplot = [];
 for i=1:numel(zeta_value)
     col(i)
     %zeta
@@ -46,9 +46,7 @@ for i=1:numel(zeta_value)
 %     fprintf("Step size:%d Number of Steps:%d\n",stepsize_value(i),size(path,1))
     
 %     lineplot(end+1) = plot3(path(:,1),path(:,2),path(:,3),path(:,4), path(:,5), path(:, 6), 'LineWidth',2);
-
-
-    legend_i{i} = strcat('rhoa : ',num2str(rhoa_value(i)));
+    
     
     hold on
     plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3, 'color', col(i,:)) 
@@ -58,15 +56,13 @@ for i=1:numel(zeta_value)
     text(qGoal(1), qGoal(2), qGoal(3), 'Goal', 'FontSize', 15)
     
     grid on
-    title(['Lynx robot Potential fiedd Planning , Path Length :   ' num2str(size(path,1)) ],'FontSize', 20, 'FontWeight', 'bold')
+    title(['Lynx robot Potential fiend Planning , Path Length :   ' num2str(size(path,1)) ],'FontSize', 20, 'FontWeight', 'bold')
     xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
-    view(3);
     hold off
-%     legend(num2str(rhoa_value(i)))
 end
-legend(legend_i, 'FontSize',14)
+
 % legend(lineplot,{'0.001','0.1','10','1000'})
 % view(a,b)
 % axis([-200 400,-200,400,-200,500])

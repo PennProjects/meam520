@@ -29,14 +29,14 @@ num_obstacles = size(map.obstacles, 1);
 
 %Setting the potential field parameters
 %distance from goal to switch from conical to parabllic well
-rho_a  = 50*ones(6,1);
+% rho_a  = 50*ones(6,1);
 %attractive field strength
-zeta = 0.1*ones(6,3);
+% zeta = 0.1*ones(6,3);
 
 %distance from obstacle to apply repulsice force
-rho_obs = 20*ones(6,1);
+% rho_obs = 20*ones(6,1);
 %repulsive field strength
-eta = 1e6*ones(6,3);
+% eta = 1e6*ones(6,3);
 
 
 %Calculating  Attractive for for each joint
@@ -93,7 +93,7 @@ for i = 2:4
 end
 
 %setting the step step for next q value
-step_size = 0.08*ones(1,6);
+% step_size = 0.08*ones(1,6);
 
 %Calcualting the next value for q
 qNext = qCurr + step_size.*((tau/norm(tau))');
@@ -109,7 +109,7 @@ qNext(qNext<=lowerLimit) = lowerLimit(qNext<=lowerLimit);
 qNext(6) = qGoal(6);
 
 %Checking of the q is close to qGoal
-epsilon = 0.02*ones(1,6);
+epsilon = 0.08*ones(1,6);
 
 if abs(qGoal-qNext) < epsilon
     isDone = true;
@@ -119,7 +119,3 @@ end
 
 
 end
-    
-    
-    
-
