@@ -48,7 +48,7 @@ for i=1:numel(zeta_value)
 %     lineplot(end+1) = plot3(path(:,1),path(:,2),path(:,3),path(:,4), path(:,5), path(:, 6), 'LineWidth',2);
 
 
-    legend_i{i} = strcat('rhoa : ',num2str(rhoa_value(i)));
+    legend_i{i} = strcat('rhoa : ',num2str(rhoa_value(i)), '     Path length :', num2str(size(path,1) ));
     
     hold on
     p(i,:) = plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3, 'color', col(i,:)) 
@@ -58,7 +58,7 @@ for i=1:numel(zeta_value)
     text(qGoal(1), qGoal(2), qGoal(3), 'Goal', 'FontSize', 15)
     
     grid on
-    title(['Lynx robot Potential fiedd Planning , Path Length :   ' num2str(size(path,1)) ],'FontSize', 20, 'FontWeight', 'bold')
+    title(['Lynx robot Potential Field Planning'],'FontSize', 20, 'FontWeight', 'bold')
     xlabel('Theta 1', 'FontSize', 20, 'FontWeight', 'bold')
     ylabel('Theta 2', 'FontSize', 20, 'FontWeight', 'bold')
     zlabel('Theta 3', 'FontSize', 20, 'FontWeight', 'bold')
