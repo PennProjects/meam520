@@ -20,102 +20,104 @@ rho_obs = rhob;
 step_size= stepsize;
 %%%%%%
 
+%Number of obstacles
 num_obstacles = size(map.obstacles, 1);
 
-% qCurr = [0 0 0 0 0 0];
+%Calculating current and final joint positions
 [joint_position_curr,~] = calculateFK(qCurr);
-
-% qGoal = [0,pi/4,pi/4,pi/4,0,0];
 [joint_position_goal,~] = calculateFK(qGoal);
 
-%rho_a  = 1*ones(6,1);
-% obd
-%zeta = 2.*ones(6,3);
+%Setting the potential field parameters
+%distance from goal to switch from conical to parabllic well
+rho_a  = 50*ones(6,1);
+%attractive field strength
+zeta = 0.1*ones(6,3);
 
-% repulsive force rho
-%rho_b = 5*ones(6,1);
-%eta = [10;10;10;10;10;10]*ones(1,3);
+%distance from obstacle to apply repulsice force
+rho_obs = 20*ones(6,1);
+%repulsive field strength
+eta = 1e6*ones(6,3);
 
-% % (joint_position_curr(:,1)-joint_position_goal(:,1)).^2
-% a = (joint_position_curr(:,1)-joint_position_goal(:,1)).^2 ;
-% b = (joint_position_curr(:,2)-joint_position_goal(:,2)).^2 ;
-% c = (joint_position_curr(:,3)-joint_position_goal(:,3)).^2;
-% 
-% distance_from_goal = sqrt(a + b + c);
 
+%Calculating  Attractive for for each joint
 f_att = [];
-f_rep = [];
-
-
  for i= 1:6
-     
      distance_from_goal= norm(joint_position_curr(i,:)-joint_position_goal(i,:));
-
-    % attractive force
+     
+     
    	if distance_from_goal < rho_a(i)
+     %Parabollic Well
      f_att(i,:) = -zeta(i)*(joint_position_curr(i,:)-joint_position_goal(i,:));
     else
+     %Conical Well
      f_att(i,:)= -rho_a(i)*zeta(i)*((joint_position_curr(i,:)-joint_position_goal(i,:))/distance_from_goal);
     end
  end
  
-% repulsive force
+ 
+%Calculating Repulsive forces for each joint for each obstacle
 f_rep_all = zeros(6,3);
+f_rep = zeros(6,3);
 
 for j=1:num_obstacles
-    obs = map.obstacles(j,:);   
-   
+    obs = map.obstacles(j,:);  
+    
+    %Calculaing distance from the obstacle
     [rho_, unit_] = distPointToBox(joint_position_curr, obs);
-
+    %scaling diatnce to appply padding around obstacle
     rho_ = rho_.* 0.9;
     
     for i = 1:6
-        
         if rho_(i) > rho_obs(i);
             f_rep(i, :) = zeros(1, 3);
         else
-            f_rep(i, :) = eta(i)*(1/rho_(i)-1/rho_obs(i))*(1/rho_(i).^2)* unit_(i, :)
+            f_rep(i, :) = eta(i)*(1/rho_(i)-1/rho_obs(i))*(1/rho_(i).^2)* unit_(i, :);
         end
-%     one = eta(x_r)'; %(3,1)
-%     two = (1./rho_(x_r))';%(1,3);
-%     three = (1./rho_obs(x_r))'; %(1,3);
-%     four = (1./rho_(x_r).^2)'; %(1,3);
-%     x = (one.*(two-three).*four)';
-%     
-%     five= unit_(x_r, :); %(3,3)
     end
-%     f_rep(x_r, :) = x.*five;
     
     f_rep_all = f_rep + f_rep_all;
     
 end
 
-
-% F
-F = (f_att + f_rep_all);
+%Calculating the sum of all forces
+f_total = (f_att + f_rep_all);
 tau = zeros(6,1);
 
-for i = 2:6 
+%Calculating Joint-Space efforts
+for i = 2:4 
         J_ = calcJacobian(joint_position_curr, i);
-   
     Jv = J_(1:3,:);
     i;
     Jv(:,end+1:6) = 0;
-    tau = tau + Jv'*F(i,:)';
-% %     Jv = [Jv;J_ ];
+    tau = tau + Jv'*f_total(i,:)';
 end
 
-qNext = qCurr + step_size.*((tau/norm(tau))')
+%setting the step step for next q value
+step_size = 0.08*ones(1,6);
 
+%Calcualting the next value for q
+qNext = qCurr + step_size.*((tau/norm(tau))');
 
+%Limiting the q values o within limits
+upperLimit = [1.4000 1.4000 1.7000 1.7000 1.5000 30];
+lowerLimit  = [-1.4000 -1.2000 -1.8000 -1.9000 -2 -15];
 
-epsilon = 0.1*ones(1,6);
+qNext(qNext>=upperLimit) = upperLimit(qNext>=upperLimit);
+qNext(qNext<=lowerLimit) = lowerLimit(qNext<=lowerLimit);
 
-if abs(qNext-qGoal) <epsilon
+%Setting gripper to be = qGoal
+qNext(6) = qGoal(6);
+
+%Checking of the q is close to qGoal
+epsilon = 0.02*ones(1,6);
+
+if abs(qGoal-qNext) < epsilon
     isDone = true;
 else
     isDone = false;
 end
+
+
 end
     
     
