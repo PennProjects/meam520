@@ -23,9 +23,9 @@ num_obstacles = size(map.obstacles, 1);
 
 %Setting the potential field parameters
 %distance from goal to switch from conical to parabllic well
-rho_a  = 30*ones(6,1);
+rho_a  = 100*ones(6,1);
 %attractive field strength
-zeta = 10*ones(6,3);
+zeta = 10000*ones(6,3);
 
 %distance from obstacle to apply repulsice force
 rho_obs = 30*ones(6,1);
@@ -65,7 +65,7 @@ for j=1:num_obstacles
         if rho_(i) > rho_obs(i);
             f_rep(i, :) = zeros(1, 3);
         else
-            f_rep(i, :) = -eta(i)*(1/rho_(i)-1/rho_obs(i))*(1/rho_(i).^2)* unit_(i, :);
+            f_rep(i, :) = eta(i)*(1/rho_(i)-1/rho_obs(i))*(1/rho_(i).^2)* unit_(i, :);
         end
     end
     
