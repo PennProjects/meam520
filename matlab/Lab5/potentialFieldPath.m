@@ -17,21 +17,27 @@ isDone = false;
 path = [];
 
 while(~isDone)
-[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal)
+[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal);
 
-if isnan(qNext)
-    qCurr
-    qNext
+if sum(isnan(qNext))
+%     qCurr
+%     qNext
     break
 end
 
 path = [path; qNext];
 
 qCurr = qNext;
+
+% setting the maximum number of path to 100
+if size(path, 1) >= 100
+    break
+end
+
 end
 
 path = [qStart;
         path;
-        qGoal];
+        qGoal]
 
 end
