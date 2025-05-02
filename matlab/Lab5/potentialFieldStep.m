@@ -28,7 +28,7 @@ rho_a  = 50*ones(6,1);
 zeta = 0.1*ones(6,3);
 
 %distance from obstacle to apply repulsice force
-rho_obs = 20*ones(6,1);
+rho_obs = 5*ones(6,1);
 %repulsive field strength
 eta = 1e6*ones(6,3);
 

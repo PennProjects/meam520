@@ -16,7 +16,7 @@ isDone = false;
 path = [];
 
 while(~isDone)
-[qNext, isDone] = potentialFieldStep_jal(qCurr, map, qGoal);
+[qNext, isDone] = potentialFieldStep(qCurr, map, qGoal);
 
 if isnan(qNext)
 %     qCurr

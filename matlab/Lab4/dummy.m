@@ -1,0 +1,4 @@
+
+q = [0.3 0.8 1 0.3 0.2 0.5 0];
+[test, ~] = calculateFK(q);
+test

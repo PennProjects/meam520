@@ -30,7 +30,7 @@ path = [path; qNext];
 qCurr = qNext;
 
 % setting the maximum number of path to 100
-if size(path, 1) >= 100
+if size(path, 1) >= 500
     break
 end
 

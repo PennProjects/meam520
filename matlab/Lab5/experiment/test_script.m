@@ -4,9 +4,9 @@ clear
 addpath('../')
 addpath('../maps')
 qStart = [0 0 0 0 0 0];
-qGoal = [0 -pi/4 pi/4 0 0 0]; 
+qGoal = [-pi/4 -pi/4 pi/4 0 0 0]; 
 
-map = loadmap('map2.txt');
+map = loadmap('map6.txt');
 
 % default 
 zeta_default = 0.1*ones(6,3);
@@ -33,13 +33,13 @@ for i=1:numel(zeta_value)
 %     [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_value(i)*ones(6,3), rhoa_default, rhob_default, stepsize_default);
 %     fprintf("Eta:%d Number of Steps:%d\n",eta_value(i),size(path,1))
 %     
-    %rhoa
-    [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rhoa_value(i)*ones(6,1), rhob_default, stepsize_default);
-    fprintf("Rho_a:%d Number of Steps:%d\n",rhoa_value(i),size(path,1))
+%     %rhoa
+%     [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rhoa_value(i)*ones(6,1), rhob_default, stepsize_default);
+%     fprintf("Rho_a:%d Number of Steps:%d\n",rhoa_value(i),size(path,1))
     
     %rhob
-    %[path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rhoa_default, rhob_value(i)*ones(6,1), stepsize_default);
-    %fprintf("Rho_b:%d Number of Steps:%d\n",rhob_value(i),size(path,1))
+    [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rhoa_default, rhob_value(i)*ones(6,1), stepsize_default);
+    fprintf("Rho_b:%d Number of Steps:%d\n",rhob_value(i),size(path,1))
     
     %stepsize
 %     [path] = experiment_potentialFieldPath(map, qStart, qGoal, zeta_default, eta_default, rhoa_default,  rhob_default, stepsize_value(i)*ones(1,6));
@@ -48,7 +48,7 @@ for i=1:numel(zeta_value)
 %     lineplot(end+1) = plot3(path(:,1),path(:,2),path(:,3),path(:,4), path(:,5), path(:, 6), 'LineWidth',2);
 
 
-    legend_i{i} = strcat('rhoa : ',num2str(rhoa_value(i)), '     Path length :', num2str(size(path,1) ));
+    legend_i{i} = strcat('rhob : ',num2str(rhoa_value(i)), '     Path length :', num2str(size(path,1) ));
     
     hold on
     p(i,:) = plot3(path(:,1), path(:,2), path(:,3),'o-', 'LineWidth', 3, 'color', col(i,:)) 

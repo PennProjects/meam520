@@ -38,7 +38,7 @@ Y = (A * X + C * Z + D)/ (-B);
 reOrder = [1 2  4 3];
 figure();patch(X(reOrder),Y(reOrder),Z(reOrder),'b');
 grid on;
-view([30 30]);
+view(3);
 alpha(0.3);
 
 hold on
